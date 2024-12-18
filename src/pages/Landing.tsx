@@ -1,13 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import { Card } from "../components/Card";
 import Navbar from "../components/NavBar";
 
 export const Landing = () => {
-  const navigate = useNavigate();
-
-  const handleCardClick = (event: string) => {
-    navigate(`/register/${event}`);
-  };
   return (
     <>
       <Navbar />
