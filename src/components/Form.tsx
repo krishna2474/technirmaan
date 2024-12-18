@@ -18,12 +18,6 @@ export const Form = () => {
             className="space-y-2 md:space-y-4 font-semibold"
             onSubmit={onSubmit}
           >
-            <div className="relative bottom-3 sm:hidden flex items-center my-4">
-              <hr className="flex-grow border-t border-white" />
-              <span className="mx-4 text-white">or</span>
-              <hr className="flex-grow border-t border-white" />
-            </div>
-
             <div>
               <input
                 autoComplete="off"
@@ -34,7 +28,7 @@ export const Form = () => {
                 type="text"
                 name="name"
                 id="name"
-                className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
                   errors["name"]
                     ? "focus:border-red-600 focus:ring-red-600"
                     : ""
