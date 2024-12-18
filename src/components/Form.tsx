@@ -13,7 +13,7 @@ export const Form = () => {
       <div className={`relative flex flex-col items-center w-full`}>
         <div className="w-full max-w-md rounded-lg">
           <form
-            className="space-y-2 md:space-y-4 font-semibold"
+            className="space-y-2 md:space-y-4 font-semibold mx-10"
             onSubmit={onSubmit}
           >
             <div>
