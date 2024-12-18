@@ -4,9 +4,9 @@ type CardProps = {
   title: string;
   description: string;
   image: string;
-  key: string;
+  cardId: string;
 };
-export const Card = ({ title, description, image, key }: CardProps) => {
+export const Card = ({ title, description, image, cardId }: CardProps) => {
   return (
     <div className="flex">
       <section className="bg-gray-2 pb-10 lg:pb-5 px-5">
@@ -26,7 +26,7 @@ export const Card = ({ title, description, image, key }: CardProps) => {
                   </p>
 
                   <Link
-                    to={`/register/${key}`}
+                    to={`/register/${cardId}`}
                     className="inline-block text-white rounded-full border border-gray-3 px-7 py-2 text-base font-medium text-body-color transition mt-6 hover:bg-purple-500 hover:text-black"
                   >
                     Register
