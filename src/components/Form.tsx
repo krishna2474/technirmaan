@@ -10,7 +10,7 @@ export const Form = () => {
   });
   return (
     <>
-      <div className={`relative bottom-5 flex flex-col  justify-center mt-0`}>
+      <div className={`relative flex flex-col items-center w-full`}>
         <div className="w-full max-w-md rounded-lg">
           <form
             className="space-y-2 md:space-y-4 font-semibold"

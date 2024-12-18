@@ -23,11 +23,11 @@ export const Registration = () => {
   return (
     <>
       <Navbar />
-      <h1 className="text-center text-white">
+      <h1 className="text-center font-extrabold text-xl underline mb-4 text-white">
         Registering for {eventName}
       </h1>{" "}
       {/* Add margin-top if needed */}
-      <div className="flex justify-center h-screen mt-[-40px] w-full">
+      <div className="flex justify-center h-screen  w-full">
         <Form />
       </div>
     </>
