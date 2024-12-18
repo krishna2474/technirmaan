@@ -13,7 +13,7 @@ export const Card = ({ title, description, image, cardId }: CardProps) => {
         <div className="container mx-auto">
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
-              <div className="mb-10 overflow-hidden rounded-lg bg-white/10 backdrop-blur-3xl border border-white/50  duration-300 xl: h-[420px]">
+              <div className="mb-10 overflow-hidden rounded-lg bg-white/10 backdrop-blur-3xl border hover:bg-white/15 border-white/50  duration-300 xl: h-[430px]">
                 <div className="flex justify-center mt-4">
                   <img src={`${image}`} width={150} alt="image" />
                 </div>
@@ -24,13 +24,14 @@ export const Card = ({ title, description, image, cardId }: CardProps) => {
                   <p className="mb-7 text-base leading-relaxed text-white xl:h-20">
                     {description}
                   </p>
-
-                  <Link
-                    to={`/register/${cardId}`}
-                    className="inline-block text-white rounded-full border border-gray-3 px-7 py-2 text-base font-medium text-body-color transition mt-6 hover:bg-purple-500 hover:text-black"
-                  >
-                    Register
-                  </Link>
+                  <div className="mb-20">
+                    <Link
+                      to={`/register/${cardId}`}
+                      className="inline-block  text-white rounded-full border border-gray-3 px-7 py-2 text-base font-medium text-body-color transition mt-6 hover:bg-purple-500 hover:text-black"
+                    >
+                      Register
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
