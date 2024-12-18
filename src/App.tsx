@@ -6,7 +6,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route path="/register" element={<Registration />} />
+      <Route path="/register/:eventId" element={<Registration />} />
     </Routes>
   );
 }
