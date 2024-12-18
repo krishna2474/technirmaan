@@ -9,7 +9,7 @@ export const Landing = () => {
         <Card
           cardId={"261df03a-22b5-48e5-9080-015a2e5895d1"}
           title="UI Showdown"
-          description="Showcase your front-end skills in a challenge to design the most stunning and functional user interfaces using HTML, CSS, and JS. No templates, just pure creativity and coding!"
+          description="Showcase your front-end skills in a challenge to design the most stunning and functional user interfaces using HTML, CSS, and JS!"
           image="/UIShowdown.png"
         />
         <Card
