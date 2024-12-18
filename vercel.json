@@ -1,12 +1,9 @@
 {
+  "version": 2,
   "routes": [
     {
-      "src": "/",
-      "dest": "/"
-    },
-    {
-      "src": "/register/:eventId",
-      "dest": "/"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
