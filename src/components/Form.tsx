@@ -11,7 +11,7 @@ export const Form = () => {
   return (
     <>
       <div
-        className={`relative bottom-5 flex flex-col items-center justify-center`}
+        className={`relative bottom-5 flex flex-col items-center justify-center mt-0`}
       >
         <div className="w-full max-w-md rounded-lg">
           <form

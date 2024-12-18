@@ -27,7 +27,7 @@ export const Registration = () => {
         Registering for {eventName}
       </h1>{" "}
       {/* Add margin-top if needed */}
-      <div className="flex justify-center items-center h-screen mt-[-8px] w-full">
+      <div className="flex justify-center items-center h-screen mt-[-40px] w-full">
         <Form />
       </div>
     </>
