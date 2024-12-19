@@ -2,12 +2,8 @@
   "version": 2,
   "routes": [
     {
-      "src": "/",
-      "dest": "/"
-    },
-    {
-      "src": "/register/*",
-      "dest": "/"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
