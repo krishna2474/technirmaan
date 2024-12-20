@@ -4,7 +4,7 @@ import { BACKEND_URL } from "../config";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 
-export const Form = () => {
+export const OnePlayerForm = () => {
   const {
     register,
     handleSubmit,

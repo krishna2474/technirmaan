@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Form } from "../components/Form";
+import { OnePlayerForm } from "../components/OnePlayerForm";
 import { useEffect, useState } from "react";
 import Navbar from "../components/NavBar";
 import axios from "axios";
@@ -36,7 +36,7 @@ export const Registration = () => {
       </h1>{" "}
       {/* Add margin-top if needed */}
       <div className="flex justify-center h-screen  w-full">
-        <Form />
+        <OnePlayerForm />
       </div>
     </>
   );
