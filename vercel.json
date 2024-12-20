@@ -40,6 +40,14 @@
     {
       "src": "/register/019789e7-7a8a-488c-b145-c4c217387d2b",
       "dest": "/"
+    },
+    {
+      "src": "/verify",
+      "dest": "/"
+    },
+    {
+      "src": "/payment",
+      "dest": "/"
     }
   ]
 }
