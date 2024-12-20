@@ -85,7 +85,7 @@ export const OtpScreen = () => {
                       <input
                         ref={(el) => (inputRefs.current[index] = el!)}
                         className="text-white w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white/10 ring-purple-500"
-                        type="text"
+                        type="number"
                         maxLength={1}
                         onChange={(e) =>
                           handleInputChange(index, e.target.value)
