@@ -2,6 +2,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { BACKEND_URL } from "../config";
 import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 
 export const Form = () => {
   const {
@@ -9,9 +10,11 @@ export const Form = () => {
     handleSubmit,
     formState: { errors, isValid },
     reset,
-  } = useForm({ mode: "onChange" }); // Use 'onChange' to trigger validation on every field change
+  } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false); // State to manage the loader
+  const { eventId } = useParams(); // Extract eventId from the URL path
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const onSubmit = handleSubmit(async (data) => {
     if (!isValid) return; // If the form is not valid, do not proceed
@@ -19,13 +22,18 @@ export const Form = () => {
     setLoading(true); // Start loading state
 
     try {
-      const res = await axios.post(
-        `${BACKEND_URL}/api/v1/register/send-otp`,
-        data
-      );
+      const res = await axios.post(`${BACKEND_URL}/api/v1/verify/send-otp`, {
+        ...data, // Spread form data
+        event: eventId, // Add eventId to the data object
+      });
+
       console.log(res.data);
+
       // Reset the form or handle success here
       reset(); // Reset the form fields if necessary
+
+      // After successful OTP sending, redirect to the /verify route
+      navigate(`/verify?email=${encodeURIComponent(data.email)}`); // Redirect to the /verify route with email state
     } catch (error) {
       console.error("Error:", error);
       // Handle error here (optional)
@@ -36,7 +44,7 @@ export const Form = () => {
 
   return (
     <>
-      <div className={`relative flex flex-col items-center w-full`}>
+      <div className="relative flex flex-col items-center w-full">
         <div className="w-full max-w-md rounded-lg">
           <form
             className="space-y-2 md:space-y-4 font-semibold mx-10"
@@ -128,7 +136,7 @@ export const Form = () => {
             <div>
               <input
                 autoComplete="off"
-                {...register("class", {
+                {...register("cls", {
                   required: "Class is required.",
                   minLength: {
                     value: 3,
@@ -136,18 +144,16 @@ export const Form = () => {
                   },
                 })}
                 type="text"
-                name="class"
-                id="class"
+                name="cls"
+                id="cls"
                 className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
-                  errors["class"]
-                    ? "focus:border-red-600 focus:ring-red-600"
-                    : ""
+                  errors["cls"] ? "focus:border-red-600 focus:ring-red-600" : ""
                 } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
                 placeholder="Class"
               />
-              {errors["class"] && (
+              {errors["cls"] && (
                 <p className="text-red-500 text-sm">
-                  {errors["class"]?.message + ""}
+                  {errors["cls"]?.message + ""}
                 </p>
               )}
             </div>

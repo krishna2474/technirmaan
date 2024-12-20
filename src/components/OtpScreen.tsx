@@ -1,8 +1,18 @@
 import { useRef, useState } from "react";
+import axios from "axios"; // Make sure axios is installed
+import { BACKEND_URL } from "../config";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export const OtpScreen = ({ email }: { email: string }) => {
+export const OtpScreen = () => {
+  const nav = useNavigate();
+  const location = useLocation();
+
+  // Retrieve the email from the query string
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get("email") || "";
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const [loading, setLoading] = useState(false); // Loading state
+  const [otp, setOtp] = useState<string>(""); // State to hold the OTP
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length === 1 && index < inputRefs.current.length - 1) {
@@ -13,16 +23,42 @@ export const OtpScreen = ({ email }: { email: string }) => {
       // Move focus to the previous input if deleting
       inputRefs.current[index - 1]?.focus();
     }
+
+    // Update OTP state when any input changes
+    setOtp(inputRefs.current.map((input) => input.value).join(""));
   };
 
-  const handleVerifyClick = async () => {
+  const handleVerifyClick = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otp.length !== 4) {
+      alert("Please enter a valid 4-digit OTP.");
+      return;
+    }
+
     setLoading(true); // Start loading
 
-    // Simulating a delay (for example, an API call)
-    setTimeout(() => {
-      setLoading(false); // Stop loading after 2 seconds
-      alert("Account Verified");
-    }, 2000);
+    try {
+      // Send OTP and email to the backend for verification
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/verify/verify-otp`,
+        {
+          email,
+          otp,
+        }
+      );
+
+      if (response.data.success) {
+        alert("Account Verified");
+        nav("/payment");
+      } else {
+        alert(response.data.error || "Failed to verify OTP");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error while verifying OTP");
+    } finally {
+      setLoading(false); // Stop loading
+    }
   };
 
   return (
@@ -34,19 +70,21 @@ export const OtpScreen = ({ email }: { email: string }) => {
               <p>Email Verification</p>
             </div>
             <div className="flex flex-row text-sm font-medium text-gray-400">
-              <p>We have sent a code to your email {email}</p>
+              <p>
+                We have sent a code to your email <u>{email}</u>
+              </p>
             </div>
           </div>
 
           <div>
-            <form>
+            <form onSubmit={handleVerifyClick}>
               <div className="flex flex-col space-y-10">
                 <div className="flex justify-between mx-auto w-full max-w-xs">
                   {[0, 1, 2, 3].map((_, index) => (
                     <div className="w-16 h-16" key={index}>
                       <input
                         ref={(el) => (inputRefs.current[index] = el!)}
-                        className="w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white/10 focus:bg-gray-50 ring-purple-500"
+                        className="text-white w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white/10 ring-purple-500"
                         type="text"
                         maxLength={1}
                         onChange={(e) =>
@@ -69,7 +107,7 @@ export const OtpScreen = ({ email }: { email: string }) => {
                   <div>
                     <button
                       className="flex flex-row items-center justify-center text-center w-full border rounded-xl outline-none py-5 bg-purple-500 border-none text-white text-sm shadow-sm h-12"
-                      onClick={handleVerifyClick}
+                      type="submit" // Use "submit" to trigger the form submission
                       disabled={loading} // Disable button while loading
                     >
                       {loading ? (

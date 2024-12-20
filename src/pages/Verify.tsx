@@ -4,7 +4,7 @@ import { OtpScreen } from "../components/OtpScreen";
 export const Verify = () => {
   return (
     <>
-      <Navbar /> <OtpScreen email={"kk@gmail.com"} />
+      <Navbar /> <OtpScreen />
     </>
   );
 };
