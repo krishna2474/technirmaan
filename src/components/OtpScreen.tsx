@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import axios from "axios"; // Make sure axios is installed
+import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -7,25 +7,53 @@ export const OtpScreen = () => {
   const nav = useNavigate();
   const location = useLocation();
 
-  // Retrieve the email from the query string
   const searchParams = new URLSearchParams(location.search);
   const email = searchParams.get("email") || "";
   const inputRefs = useRef<HTMLInputElement[]>([]);
-  const [loading, setLoading] = useState(false); // Loading state
-  const [otp, setOtp] = useState<string>(""); // State to hold the OTP
+  const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState<string>("");
 
   const handleInputChange = (index: number, value: string) => {
-    if (value.length === 1 && index < inputRefs.current.length - 1) {
-      // Move focus to the next input
-      inputRefs.current[index + 1]?.focus();
+    if (value.length === 1) {
+      // Update the current field
+      inputRefs.current[index].value = value;
+
+      // Move focus to the next input if it exists
+      if (index < inputRefs.current.length - 1) {
+        inputRefs.current[index + 1]?.focus();
+      }
     }
+
     if (value.length === 0 && index > 0) {
       // Move focus to the previous input if deleting
       inputRefs.current[index - 1]?.focus();
     }
 
-    // Update OTP state when any input changes
+    // Update OTP state
     setOtp(inputRefs.current.map((input) => input.value).join(""));
+  };
+
+  const handlePaste = (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").slice(0, 4);
+    const values = pastedData.split("");
+
+    values.forEach((char, i) => {
+      if (index + i < inputRefs.current.length) {
+        const input = inputRefs.current[index + i];
+        if (input) {
+          input.value = char;
+          handleInputChange(index + i, char);
+        }
+      }
+    });
+
+    if (index + values.length < inputRefs.current.length) {
+      inputRefs.current[index + values.length]?.focus();
+    }
   };
 
   const handleVerifyClick = async (e: React.FormEvent) => {
@@ -35,10 +63,9 @@ export const OtpScreen = () => {
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
-      // Send OTP and email to the backend for verification
       const response = await axios.post(
         `${BACKEND_URL}/api/v1/verify/verify-otp`,
         {
@@ -57,7 +84,7 @@ export const OtpScreen = () => {
       console.error(error);
       alert("Error while verifying OTP");
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
@@ -85,17 +112,20 @@ export const OtpScreen = () => {
                       <input
                         ref={(el) => (inputRefs.current[index] = el!)}
                         className="text-white w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white/10 ring-purple-500"
-                        type="number"
+                        type="text"
                         maxLength={1}
                         onChange={(e) =>
                           handleInputChange(index, e.target.value)
                         }
+                        onPaste={(e) => handlePaste(e, index)}
+                        onFocus={(e) => e.target.select()}
                         onKeyDown={(e) => {
                           if (
                             e.key === "Backspace" &&
-                            e.currentTarget.value === ""
+                            !inputRefs.current[index].value &&
+                            index > 0
                           ) {
-                            handleInputChange(index, "");
+                            inputRefs.current[index - 1]?.focus();
                           }
                         }}
                       />
@@ -107,11 +137,11 @@ export const OtpScreen = () => {
                   <div>
                     <button
                       className="flex flex-row items-center justify-center text-center w-full border rounded-xl outline-none py-5 bg-purple-500 border-none text-white text-sm shadow-sm h-12"
-                      type="submit" // Use "submit" to trigger the form submission
-                      disabled={loading} // Disable button while loading
+                      type="submit"
+                      disabled={loading}
                     >
                       {loading ? (
-                        <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6 mr-2"></div> // Loader spinner
+                        <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6 mr-2"></div>
                       ) : (
                         "Verify Account"
                       )}
