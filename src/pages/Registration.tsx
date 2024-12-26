@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/NavBar";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { Skeleton } from "@mui/material";
 import { TwoPlayerForm } from "../components/TwoPlayerForm";
 import { TwoToFourPlayerForm } from "../components/TwoToFourPlayerForm";
 import { FourPlayerForm } from "../components/FourPlayerForm";
