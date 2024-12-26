@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
-export const FourPlayerForm = () => {
+export const TwoToFourPlayerForm = () => {
   const {
     register,
     handleSubmit,
@@ -14,7 +14,7 @@ export const FourPlayerForm = () => {
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false);
-  const [numPlayers, setNumPlayers] = useState(4);
+  const [numPlayers, setNumPlayers] = useState(2);
   const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export const FourPlayerForm = () => {
         name: data[`name${i}`],
         email: data[`email${i}`],
         phone: data[`phone${i}`],
-        cls: data[`class${i}`],
+        class: data[`class${i}`],
         department: data[`department${i}`],
         college: data[`college${i}`],
       });
@@ -43,7 +43,7 @@ export const FourPlayerForm = () => {
 
     try {
       const res = await axios.post(
-        `${BACKEND_URL}/api/v1/verify/send-otp?type=4`,
+        `${BACKEND_URL}/api/v1/verify/send-otp?type=2-4`,
         {
           players: playersData,
           event: eventId,
@@ -78,46 +78,34 @@ export const FourPlayerForm = () => {
 
   // Automatically update other players' fields if checkbox is checked
   useEffect(() => {
+    setValue("phone2", watchedPhone1);
     if (isSameForLastPlayers) {
-      setValue("phone2", watchedPhone1);
-      setValue("phone3", watchedPhone1);
-      setValue("phone4", watchedPhone1);
-
-      setValue("class2", watchedClass1);
-      setValue("class3", watchedClass1);
-      setValue("class4", watchedClass1);
-
-      setValue("department2", watchedDepartment1);
-      setValue("department3", watchedDepartment1);
-      setValue("department4", watchedDepartment1);
-
-      setValue("college2", watchedCollege1);
-      setValue("college3", watchedCollege1);
-      setValue("college4", watchedCollege1);
-    } else {
-      // Reset fields for other players when checkbox is unchecked
-      setValue("phone2", "");
-      setValue("phone3", "");
-      setValue("phone4", "");
-
-      setValue("class2", "");
-      setValue("class3", "");
-      setValue("class4", "");
-
-      setValue("department2", "");
-      setValue("department3", "");
-      setValue("department4", "");
-
-      setValue("college2", "");
-      setValue("college3", "");
-      setValue("college4", "");
+      // Sync the class, department, and college for players 2 to 4 based on the selected number of players
+      if (numPlayers >= 2) {
+        setValue("phone2", watchedPhone1);
+        setValue("class2", watchedClass1);
+        setValue("department2", watchedDepartment1);
+        setValue("college2", watchedCollege1);
+      }
+      if (numPlayers >= 3) {
+        setValue("phone3", watchedPhone1);
+        setValue("class3", watchedClass1);
+        setValue("department3", watchedDepartment1);
+        setValue("college3", watchedCollege1);
+      }
+      if (numPlayers === 4) {
+        setValue("phone4", watchedPhone1);
+        setValue("class4", watchedClass1);
+        setValue("department4", watchedDepartment1);
+        setValue("college4", watchedCollege1);
+      }
     }
   }, [
     watchedClass1,
     watchedDepartment1,
     watchedCollege1,
-    watchedPhone1,
     isSameForLastPlayers,
+    numPlayers, // Depend on numPlayers to ensure this logic is reevaluated
     setValue,
   ]);
 
@@ -128,6 +116,22 @@ export const FourPlayerForm = () => {
           className="space-y-2 md:space-y-4 font-semibold mx-10"
           onSubmit={onSubmit}
         >
+          {/* Number of Players Dropdown */}
+          <div>
+            <label className="text-white text-sm">
+              Select Number of Players (2-4)
+            </label>
+            <select
+              value={numPlayers}
+              onChange={(e) => setNumPlayers(Number(e.target.value))}
+              className="w-full bg-transparent text-sm text-white border rounded-md border-stroke outline-none p-2.5 focus:ring-customPurple focus:border-purple-500"
+            >
+              <option value={2}>2 Players</option>
+              <option value={3}>3 Players</option>
+              <option value={4}>4 Players</option>
+            </select>
+          </div>
+
           {/* Dynamic Name, Email, Phone, Class, Department, and College Inputs for Each Player */}
           {[...Array(numPlayers)].map((_, index) => {
             const playerIndex = index + 1;

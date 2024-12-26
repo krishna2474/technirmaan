@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { BACKEND_URL } from "../config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
 
 export const TwoPlayerForm = () => {
@@ -9,32 +9,57 @@ export const TwoPlayerForm = () => {
     register,
     handleSubmit,
     formState: { errors, isValid },
-    reset,
+    setValue,
+    watch,
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false); // State to manage the loader
   const [numPlayers, setNumPlayers] = useState(2); // State to handle number of players (default is 2)
+  const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams(); // Extract eventId from the URL path
   const navigate = useNavigate(); // Initialize the navigate function
 
   const onSubmit = handleSubmit(async (data) => {
-    if (!isValid) return; // If the form is not valid, do not proceed
-
     setLoading(true); // Start loading state
 
     try {
-      const res = await axios.post(`${BACKEND_URL}/api/v1/verify/send-otp`, {
-        ...data, // Spread form data
-        event: eventId, // Add eventId to the data object
-      });
+      const playersData = [];
+      for (let i = 1; i <= numPlayers; i++) {
+        playersData.push({
+          name: data[`name${i}`], // Dynamically access name based on player index
+          email: data[`email${i}`],
+          phone: data[`phone${i}`], // Dynamically access phone based on player index
+          cls: data[`class${i}`], // Dynamically access class based on player index
+          department:
+            data[`department${i}`] === "Other"
+              ? data.departmentCustom
+              : data[`department${i}`], // Handle 'Other' case
+          college:
+            data[`college${i}`] === "Other"
+              ? data.collegeCustom
+              : data[`college${i}`], // Handle 'Other' case
+        });
+      }
+      console.log(playersData);
+
+      const res = await axios.post(
+        `${BACKEND_URL}/api/v1/verify/send-otp?type=2`,
+        {
+          players: playersData,
+          event: eventId,
+        }
+      );
 
       console.log(res.data);
-
-      // Reset the form or handle success here
-      reset(); // Reset the form fields if necessary
-
-      // After successful OTP sending, redirect to the /verify route
-      navigate(`/verify?email=${encodeURIComponent(data.email)}`); // Redirect to the /verify route with email state
+      if (res.status === 200)
+        // After successful OTP sending, redirect to the /verify route
+        navigate(
+          `/verify?email=${encodeURIComponent(
+            data.email1
+          )}&event=${encodeURIComponent(eventId + "")}`
+        );
+      // Redirect to the /verify route with email state
+      else alert("Error sending OTP");
     } catch (error) {
       console.error("Error:", error);
       // Handle error here (optional)
@@ -43,195 +68,243 @@ export const TwoPlayerForm = () => {
     }
   });
 
+  const handleCheckboxChange = () => {
+    setIsSameForLastPlayers((prev) => !prev);
+  };
+
+  // Watch the first player's class, department, and college fields
+  const watchedClass1 = watch("class1");
+  const watchedPhone1 = watch("phone1");
+  const watchedDepartment1 = watch("department1");
+  const watchedCollege1 = watch("college1");
+
+  // Automatically update other players' fields if checkbox is checked
+  useEffect(() => {
+    setValue("phone2", watchedPhone1);
+    if (isSameForLastPlayers) {
+      // Sync the class, department, and college for players 2 to 4 based on the selected number of players
+      if (numPlayers >= 2) {
+        setValue("phone2", watchedPhone1);
+        setValue("class2", watchedClass1);
+        setValue("department2", watchedDepartment1);
+        setValue("college2", watchedCollege1);
+      }
+      if (numPlayers >= 3) {
+        setValue("phone3", watchedPhone1);
+        setValue("class3", watchedClass1);
+        setValue("department3", watchedDepartment1);
+        setValue("college3", watchedCollege1);
+      }
+      if (numPlayers === 4) {
+        setValue("phone4", watchedPhone1);
+        setValue("class4", watchedClass1);
+        setValue("department4", watchedDepartment1);
+        setValue("college4", watchedCollege1);
+      }
+    }
+  }, [
+    watchedClass1,
+    watchedDepartment1,
+    watchedCollege1,
+    isSameForLastPlayers,
+    numPlayers, // Depend on numPlayers to ensure this logic is reevaluated
+    setValue,
+  ]);
+
   return (
-    <>
-      <div className="relative flex flex-col items-center w-full">
-        <div className="w-full max-w-md rounded-lg">
-          <form
-            className="space-y-2 md:space-y-4 font-semibold mx-10"
-            onSubmit={onSubmit}
-          >
-            {/* Name input for Player 1 */}
-            <div>
-              <input
-                autoComplete="off"
-                {...register("name1", {
-                  required: "Full name for Player 1 is required.",
-                  minLength: {
-                    value: 3,
-                    message:
-                      "Full name for Player 1 must be at least 3 characters.",
-                  },
-                })}
-                type="text"
-                name="name1"
-                id="name1"
-                className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
-                  errors["name1"]
-                    ? "focus:border-red-600 focus:ring-red-600"
-                    : ""
-                } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500 `}
-                placeholder="Player 1 Full Name"
-              />
-              {errors["name1"] && (
-                <p className="text-red-500 text-sm truncate">
-                  {errors["name1"]?.message + ""}
-                </p>
+    <div className="relative flex flex-col items-center w-full">
+      <div className="w-full max-w-md rounded-lg">
+        <form
+          className="space-y-2 md:space-y-4 font-semibold mx-10"
+          onSubmit={onSubmit}
+        >
+          {/* Dynamic Name, Email, Phone, Class, Department, and College Inputs for Each Player */}
+          {[...Array(numPlayers)].map((_, index) => {
+            const playerIndex = index + 1;
+            return (
+              <div key={playerIndex} className="space-y-2 md:space-y-4">
+                {/* Player Name Input */}
+                <input
+                  autoComplete="off"
+                  {...register(`name${playerIndex}`, {
+                    required: `Full name for Player ${playerIndex} is required.`,
+                    minLength: {
+                      value: 3,
+                      message: `Full name for Player ${playerIndex} must be at least 3 characters.`,
+                    },
+                  })}
+                  type="text"
+                  name={`name${playerIndex}`}
+                  id={`name${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
+                    errors[`name${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder={`Player ${playerIndex} Full Name`}
+                />
+                {errors[`name${playerIndex}`] && (
+                  <p className="text-red-500 text-sm truncate">
+                    {errors[`name${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+
+                {/* Player Email Input */}
+                <input
+                  autoComplete="off"
+                  {...register(`email${playerIndex}`, {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                      message: "Please enter a valid email address",
+                    },
+                  })}
+                  type="email"
+                  name={`email${playerIndex}`}
+                  id={`email${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`email${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Email"
+                />
+                {errors[`email${playerIndex}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`email${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+
+                {/* Player Phone Input */}
+                {playerIndex === 1 && (
+                  <input
+                    autoComplete="off"
+                    {...register(`phone${playerIndex}`, {
+                      required: "Phone number is required",
+                      pattern: {
+                        value: /^[0-9]{10}$/,
+                        message: "Please enter a valid 10-digit phone number",
+                      },
+                    })}
+                    type="number"
+                    name={`phone${playerIndex}`}
+                    id={`phone${playerIndex}`}
+                    className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                      errors[`phone${playerIndex}`]
+                        ? "focus:border-red-600 focus:ring-red-600"
+                        : ""
+                    } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                    placeholder="Contact"
+                  />
+                )}
+                {errors[`phone${playerIndex}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`phone${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+
+                {/* Player Class Input */}
+                <input
+                  autoComplete="off"
+                  {...register(`class${playerIndex}`, {
+                    required: "Class is required",
+                  })}
+                  type="text"
+                  name={`class${playerIndex}`}
+                  id={`class${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`class${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Class"
+                />
+                {errors[`class${playerIndex}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`class${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+
+                {/* Player Department Input */}
+                <input
+                  autoComplete="off"
+                  {...register(`department${playerIndex}`, {
+                    required: "Department is required",
+                  })}
+                  type="text"
+                  name={`department${playerIndex}`}
+                  id={`department${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`department${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Department"
+                />
+                {errors[`department${playerIndex}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`department${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+
+                {/* Player College Input */}
+                <input
+                  autoComplete="off"
+                  {...register(`college${playerIndex}`, {
+                    required: "College is required",
+                  })}
+                  type="text"
+                  name={`college${playerIndex}`}
+                  id={`college${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`college${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="College"
+                />
+                {errors[`college${playerIndex}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`college${playerIndex}`]?.message + ""}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Checkbox for automatic filling */}
+          <div className="flex items-center justify-start">
+            <input
+              type="checkbox"
+              id="sameForLastPlayers"
+              checked={isSameForLastPlayers}
+              onChange={handleCheckboxChange}
+              className="text-white focus:ring-purple-500"
+            />
+            <label
+              htmlFor="sameForLastPlayers"
+              className="text-white text-sm ml-2"
+            >
+              Last 3 players have the same class, department, and college
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="text-white bg-purple-500 hover:bg-white hover:text-black focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 transition-all duration-300 ease-in-out"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6 mr-2"></div>
+              ) : (
+                "Register"
               )}
-            </div>
-
-            {/* Name input for Player 2 */}
-            {numPlayers >= 2 && (
-              <div>
-                <input
-                  autoComplete="off"
-                  {...register("name2", {
-                    required: "Full name for Player 2 is required.",
-                    minLength: {
-                      value: 3,
-                      message:
-                        "Full name for Player 2 must be at least 3 characters.",
-                    },
-                  })}
-                  type="text"
-                  name="name2"
-                  id="name2"
-                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
-                    errors["name2"]
-                      ? "focus:border-red-600 focus:ring-red-600"
-                      : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500 `}
-                  placeholder="Player 2 Full Name"
-                />
-                {errors["name2"] && (
-                  <p className="text-red-500 text-sm truncate">
-                    {errors["name2"]?.message + ""}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Name input for Player 3 */}
-            {numPlayers >= 3 && (
-              <div>
-                <input
-                  autoComplete="off"
-                  {...register("name3", {
-                    required: "Full name for Player 3 is required.",
-                    minLength: {
-                      value: 3,
-                      message:
-                        "Full name for Player 3 must be at least 3 characters.",
-                    },
-                  })}
-                  type="text"
-                  name="name3"
-                  id="name3"
-                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
-                    errors["name3"]
-                      ? "focus:border-red-600 focus:ring-red-600"
-                      : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500 `}
-                  placeholder="Player 3 Full Name"
-                />
-                {errors["name3"] && (
-                  <p className="text-red-500 text-sm truncate">
-                    {errors["name3"]?.message + ""}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Name input for Player 4 */}
-            {numPlayers >= 4 && (
-              <div>
-                <input
-                  autoComplete="off"
-                  {...register("name4", {
-                    required: "Full name for Player 4 is required.",
-                    minLength: {
-                      value: 3,
-                      message:
-                        "Full name for Player 4 must be at least 3 characters.",
-                    },
-                  })}
-                  type="text"
-                  name="name4"
-                  id="name4"
-                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke outline-none transition b ${
-                    errors["name4"]
-                      ? "focus:border-red-600 focus:ring-red-600"
-                      : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500 `}
-                  placeholder="Player 4 Full Name"
-                />
-                {errors["name4"] && (
-                  <p className="text-red-500 text-sm truncate">
-                    {errors["name4"]?.message + ""}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Player Count Selector */}
-            <div>
-              <label className="text-white text-sm">
-                Select Number of Players (2-4)
-              </label>
-              <select
-                value={numPlayers}
-                onChange={(e) => setNumPlayers(Number(e.target.value))}
-                className="w-full bg-transparent text-sm text-white border rounded-md border-stroke outline-none p-2.5 focus:ring-customPurple focus:border-purple-500"
-              >
-                <option value={2}>2 Players</option>
-                <option value={3}>3 Players</option>
-                <option value={4}>4 Players</option>
-              </select>
-            </div>
-
-            {/* Email input */}
-            <div>
-              <input
-                autoComplete="off"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                    message: "Please enter a valid email address",
-                  },
-                })}
-                type="text"
-                name="email"
-                id="email"
-                className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
-                  errors.email ? "focus:border-red-600 focus:ring-red-600" : ""
-                } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                placeholder="Email"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.email?.message + ""}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="text-white bg-purple-500 hover:bg-white hover:text-black focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 transition-all duration-300 ease-in-out"
-                disabled={loading} // Disable the button when loading
-              >
-                {loading ? (
-                  <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6 mr-2"></div> // Loader spinner
-                ) : (
-                  "Register"
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+            </button>
+          </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 };

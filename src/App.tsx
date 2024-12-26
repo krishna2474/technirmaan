@@ -4,6 +4,7 @@ import { Registration } from "./pages/Registration";
 import ScrollToTop from "./components/ScrollToTop";
 import { Verify } from "./pages/Verify";
 import { Payment } from "./pages/Payment";
+import { Teams } from "./pages/Teams";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/register/:eventId" element={<Registration />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/teams" element={<Teams />} />
       </Routes>
     </>
   );

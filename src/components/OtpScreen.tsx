@@ -9,6 +9,7 @@ export const OtpScreen = () => {
 
   const searchParams = new URLSearchParams(location.search);
   const email = searchParams.get("email") || "";
+  const event_id = searchParams.get("event") || "";
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState<string>("");
@@ -71,6 +72,7 @@ export const OtpScreen = () => {
         {
           email,
           otp,
+          event_id,
         }
       );
 
