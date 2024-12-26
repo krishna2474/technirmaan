@@ -8,13 +8,13 @@ export const TwoPlayerForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     setValue,
     watch,
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false); // State to manage the loader
-  const [numPlayers, setNumPlayers] = useState(2); // State to handle number of players (default is 2)
+  const numPlayers = 2; // State to handle number of players (default is 2)
   const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams(); // Extract eventId from the URL path
   const navigate = useNavigate(); // Initialize the navigate function
@@ -88,18 +88,6 @@ export const TwoPlayerForm = () => {
         setValue("class2", watchedClass1);
         setValue("department2", watchedDepartment1);
         setValue("college2", watchedCollege1);
-      }
-      if (numPlayers >= 3) {
-        setValue("phone3", watchedPhone1);
-        setValue("class3", watchedClass1);
-        setValue("department3", watchedDepartment1);
-        setValue("college3", watchedCollege1);
-      }
-      if (numPlayers === 4) {
-        setValue("phone4", watchedPhone1);
-        setValue("class4", watchedClass1);
-        setValue("department4", watchedDepartment1);
-        setValue("college4", watchedCollege1);
       }
     }
   }, [
