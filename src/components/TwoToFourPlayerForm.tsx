@@ -29,7 +29,7 @@ export const TwoToFourPlayerForm = () => {
         name: data[`name${i}`],
         email: data[`email${i}`],
         phone: data[`phone${i}`],
-        class: data[`class${i}`],
+        cls: data[`class${i}`],
         department: data[`department${i}`],
         college: data[`college${i}`],
       });
