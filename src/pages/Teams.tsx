@@ -94,12 +94,12 @@ export const Teams = () => {
   const groupedTeams = groupByTeam(participants);
 
   return (
-    <div className="flex flex-col justify-center items-center text-white">
+    <div className="flex flex-col justify-center items-center text-white px-4 sm:px-6 md:px-8 lg:px-16">
       {/* Event Dropdown */}
       <div className="flex justify-center mt-5">
         <label htmlFor="event-select">Select Event:</label>
         <select
-          className="text-black ml-2"
+          className="text-black ml-2 py-2 px-4 rounded-md"
           id="event-select"
           value={selectedEvent}
           onChange={(e) => setSelectedEvent(e.target.value)}
@@ -121,27 +121,41 @@ export const Teams = () => {
       ) : Object.keys(groupedTeams).length === 0 ? (
         <p>No participants found.</p>
       ) : (
-        <div className="mt-5">
+        <div className="mt-5 w-full">
           {Object.entries(groupedTeams).map(([teamName, teamMembers]) => (
             <div key={teamName} className="mb-8">
-              <h2 className="text-xl font-bold text-center mb-4">
+              <h2 className="text-xl font-bold text-center mb-4 bg-purple-600">
                 {teamName === "No Team"
                   ? "Individual Participants"
                   : `Team: ${teamName}`}
               </h2>
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-gray-800">
-                  <thead>
+                <table className="min-w-full ">
+                  <thead className="bg-gray-800">
                     <tr>
                       {teamMembers.length > 0 && (
                         <>
-                          <th className="py-2 px-4">Name</th>
-                          <th className="py-2 px-4">Email</th>
-                          <th className="py-2 px-4">Phone</th>
-                          <th className="py-2 px-4">Class</th>
-                          <th className="py-2 px-4">Department</th>
-                          <th className="py-2 px-4">College</th>
-                          <th className="py-2 px-4">Verified</th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Name
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Email
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Phone
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Class
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Department
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            College
+                          </th>
+                          <th className="py-2 px-4 text-sm md:text-base">
+                            Verified
+                          </th>
                         </>
                       )}
                     </tr>
@@ -149,15 +163,25 @@ export const Teams = () => {
                   <tbody>
                     {teamMembers.map((member: Member) => (
                       <tr key={member.user_id} className="hover:bg-gray-700">
-                        <td className="border py-2 px-4">{member.name}</td>
-                        <td className="border py-2 px-4">{member.email}</td>
-                        <td className="border py-2 px-4">{member.phone}</td>
-                        <td className="border py-2 px-4">{member.class}</td>
-                        <td className="border py-2 px-4">
+                        <td className="border py-2 px-4 text-sm md:text-base">
+                          {member.name}
+                        </td>
+                        <td className="border py-2 px-4 text-sm md:text-base">
+                          {member.email}
+                        </td>
+                        <td className="border py-2 px-4 text-sm md:text-base">
+                          {member.phone}
+                        </td>
+                        <td className="border py-2 px-4 text-sm md:text-base">
+                          {member.class}
+                        </td>
+                        <td className="border py-2 px-4 text-sm md:text-base">
                           {member.department}
                         </td>
-                        <td className="border py-2 px-4">{member.college}</td>
-                        <td className="border py-2 px-4">
+                        <td className="border py-2 px-4 text-sm md:text-base">
+                          {member.college}
+                        </td>
+                        <td className="border py-2 px-4 text-sm md:text-base">
                           {member.verified ? "Yes" : "No"}
                         </td>
                       </tr>
