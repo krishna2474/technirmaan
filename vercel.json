@@ -48,6 +48,10 @@
     {
       "src": "/payment",
       "dest": "/"
+    },
+    {
+      "src": "/teams",
+      "dest": "/"
     }
   ]
 }
