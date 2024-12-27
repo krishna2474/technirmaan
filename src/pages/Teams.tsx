@@ -22,10 +22,6 @@ interface Team {
   members: Member[];
 }
 
-interface ParticipantsResponse {
-  participants: (Team | Member)[];
-}
-
 export const Teams = () => {
   const [events, setEvents] = useState<any[]>([]); // List of events
   const [selectedEvent, setSelectedEvent] = useState<string>(""); // Currently selected event
