@@ -8,12 +8,12 @@ type CardProps = {
 };
 export const Card = ({ title, description, image, cardId }: CardProps) => {
   return (
-    <div className="flex">
-      <section className="bg-gray-2 pb-10 lg:pb-5 px-5">
+    <div className="flex ">
+      <section className="bg-gray-2 pb-10 lg:pb-5 px-5 ">
         <div className="container mx-auto">
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
-              <div className="mb-10 overflow-hidden rounded-lg bg-white/10 backdrop-blur-3xl border hover:border-white-400/50 border-white/40 hover:bg-white/15  duration-300 xl: h-[430px]">
+              <div className="mb-10 overflow-hidden rounded-lg bg-white/10 backdrop-blur-3xl border hover:border-white-400/50 border-white/40 hover:bg-white/15 duration-300 xl: h-[430px]">
                 <div className="flex justify-center mt-4">
                   <img src={`${image}`} width={150} alt="image" />
                 </div>
