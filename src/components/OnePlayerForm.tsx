@@ -48,7 +48,6 @@ export const OnePlayerForm = () => {
         college: data.college === "Other" ? data.collegeCustom : data.college,
         event: eventId,
       });
-      console.log({ players: playersData });
 
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/verify/send-otp?type=1`,
@@ -59,16 +58,20 @@ export const OnePlayerForm = () => {
       );
 
       console.log(res.data);
-      if (res.status == 200)
+
+      if (res.status === 200) {
         navigate(
           `/verify?email=${encodeURIComponent(
             data.email
           )}&event=${encodeURIComponent(eventId + "")}`
         );
-      else {
+      } else if (res.status === 400) {
+        alert("User is already registered for the event");
+      } else {
         alert("Error in registering. Please try again later.");
       }
-    } catch (error) {
+    } catch (error: any) {
+      alert(error.response.data.error);
       console.error("Error:", error);
     } finally {
       setLoading(false);

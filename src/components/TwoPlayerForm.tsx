@@ -40,7 +40,6 @@ export const TwoPlayerForm = () => {
               : data[`college${i}`], // Handle 'Other' case
         });
       }
-      console.log(playersData);
 
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/verify/send-otp?type=2`,
@@ -273,7 +272,7 @@ export const TwoPlayerForm = () => {
               htmlFor="sameForLastPlayers"
               className="text-white text-sm ml-2"
             >
-              Last 3 players have the same class, department, and college
+              All players have the same class, department, and college
             </label>
           </div>
 

@@ -20,8 +20,6 @@ export const TwoToFourPlayerForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
-
     // Format player data into an array of objects
     const playersData = [];
     for (let i = 1; i <= numPlayers; i++) {
@@ -34,10 +32,6 @@ export const TwoToFourPlayerForm = () => {
         college: data[`college${i}`],
       });
     }
-    console.log({
-      players: playersData,
-      event: eventId,
-    });
 
     setLoading(true);
 
@@ -59,7 +53,8 @@ export const TwoToFourPlayerForm = () => {
           data.email1
         )}&event=${encodeURIComponent(eventId + "")}`
       );
-    } catch (error) {
+    } catch (error: any) {
+      alert(error.response.data.error);
       console.error("Error:", error);
     } finally {
       setLoading(false);
@@ -78,29 +73,35 @@ export const TwoToFourPlayerForm = () => {
 
   // Automatically update other players' fields if checkbox is checked
   useEffect(() => {
+    // Watch the first player's class, department, and college fields
     setValue("phone2", watchedPhone1);
+    if (numPlayers >= 3) {
+      setValue("phone3", watchedPhone1);
+    }
+    if (numPlayers >= 4) {
+      setValue("phone4", watchedPhone1);
+    }
+
     if (isSameForLastPlayers) {
       // Sync the class, department, and college for players 2 to 4 based on the selected number of players
       if (numPlayers >= 2) {
-        setValue("phone2", watchedPhone1);
         setValue("class2", watchedClass1);
         setValue("department2", watchedDepartment1);
         setValue("college2", watchedCollege1);
       }
       if (numPlayers >= 3) {
-        setValue("phone3", watchedPhone1);
         setValue("class3", watchedClass1);
         setValue("department3", watchedDepartment1);
         setValue("college3", watchedCollege1);
       }
       if (numPlayers === 4) {
-        setValue("phone4", watchedPhone1);
         setValue("class4", watchedClass1);
         setValue("department4", watchedDepartment1);
         setValue("college4", watchedCollege1);
       }
     }
   }, [
+    watchedPhone1,
     watchedClass1,
     watchedDepartment1,
     watchedCollege1,
@@ -299,7 +300,7 @@ export const TwoToFourPlayerForm = () => {
               htmlFor="sameForLastPlayers"
               className="text-white text-sm ml-2"
             >
-              Last 3 players have the same class, department, and college
+              All players have the same class, department, and college
             </label>
           </div>
 

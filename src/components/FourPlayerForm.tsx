@@ -20,8 +20,6 @@ export const FourPlayerForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
-
     // Format player data into an array of objects
     const playersData = [];
     for (let i = 1; i <= numPlayers; i++) {
@@ -34,10 +32,6 @@ export const FourPlayerForm = () => {
         college: data[`college${i}`],
       });
     }
-    console.log({
-      players: playersData,
-      event: eventId,
-    });
 
     setLoading(true);
 
@@ -295,7 +289,7 @@ export const FourPlayerForm = () => {
               htmlFor="sameForLastPlayers"
               className="text-white text-sm ml-2"
             >
-              Last 3 players have the same class, department, and college
+              All players have the same class, department, and college
             </label>
           </div>
 
