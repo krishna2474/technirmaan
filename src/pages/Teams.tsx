@@ -129,31 +129,29 @@ export const Teams = () => {
                   ? "Individual Participants"
                   : `Team: ${teamName}`}
               </h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full ">
+              <div className="overflow-x-auto max-w-full">
+                <table className="min-w-full table-auto">
                   <thead className="bg-gray-800">
                     <tr>
                       {teamMembers.length > 0 && (
                         <>
-                          <th className="py-2 px-4 text-sm md:text-base">
-                            Name
-                          </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">Name</th>
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             Email
                           </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             Phone
                           </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             Class
                           </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             Department
                           </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             College
                           </th>
-                          <th className="py-2 px-4 text-sm md:text-base">
+                          <th className="py-2 px-2 text-xs sm:text-sm">
                             Verified
                           </th>
                         </>
@@ -163,25 +161,25 @@ export const Teams = () => {
                   <tbody>
                     {teamMembers.map((member: Member) => (
                       <tr key={member.user_id} className="hover:bg-gray-700">
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.name}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.email}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.phone}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.class}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.department}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.college}
                         </td>
-                        <td className="border py-2 px-4 text-sm md:text-base">
+                        <td className="border py-2 px-2 text-xs sm:text-sm">
                           {member.verified ? "Yes" : "No"}
                         </td>
                       </tr>
