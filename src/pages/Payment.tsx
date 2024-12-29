@@ -9,6 +9,7 @@ export const Payment = () => {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  console.log(paymentStatus);
 
   const [email, setEmail] = useState("");
   const [eventId, setEventId] = useState("");
