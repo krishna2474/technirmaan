@@ -13,6 +13,7 @@ const QrScanner = () => {
   const [qrData, setQrData] = useState<any>(null);
   const [isTeamEvent, setIsTeamEvent] = useState<boolean>(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  console.log(scanResult);
 
   // Fetch events on component mount
   useEffect(() => {
@@ -171,7 +172,7 @@ const QrScanner = () => {
             </div>
             <button
               onClick={closeModal}
-              className="px-4 py-2 bg-gray-300 text-black rounded-md mt-4"
+              className="px-4 py-2 bg-red-700 text-white rounded-md mt-4"
             >
               Close
             </button>
@@ -219,7 +220,7 @@ const QrScanner = () => {
             </div>
             <button
               onClick={closeModal}
-              className="px-4 py-2 text-black rounded-md mt-4 bg-red-700 text-white"
+              className="px-4 py-2 rounded-md mt-4 bg-red-700 text-white"
             >
               Close
             </button>
