@@ -12,6 +12,7 @@ const QrScanner = () => {
   const [error, setError] = useState<string | null>(null);
   const [qrData, setQrData] = useState<any>(null);
   const [isTeamEvent, setIsTeamEvent] = useState<boolean>(false);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   console.log(scanResult);
 
@@ -88,9 +89,55 @@ const QrScanner = () => {
     }
   };
 
+  // Handle member checkbox selection for team events
+  const handleCheckboxChange = (email: string) => {
+    setSelectedMembers((prevSelectedMembers) =>
+      prevSelectedMembers.includes(email)
+        ? prevSelectedMembers.filter((member) => member !== email)
+        : [...prevSelectedMembers, email]
+    );
+  };
+
   // Close modals
   const closeModal = () => {
     setQrData(null);
+    setSelectedMembers([]);
+  };
+
+  // Handle form submission for team event
+  const handleTeamEventSubmission = async () => {
+    if (selectedMembers.length === 0) {
+      setError("Please select at least one team member.");
+      return;
+    }
+
+    try {
+      await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
+        emails: selectedMembers,
+      });
+      setError(null);
+      closeModal();
+    } catch (error) {
+      setError("Error submitting attendance.");
+    }
+  };
+
+  // Handle individual event attendance submission
+  const handleIndividualEventSubmission = async () => {
+    if (!qrData) {
+      setError("Invalid QR data.");
+      return;
+    }
+
+    try {
+      await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
+        emails: [qrData.email],
+      });
+      setError(null);
+      closeModal();
+    } catch (error) {
+      setError("Error submitting attendance.");
+    }
   };
 
   return (
@@ -152,6 +199,7 @@ const QrScanner = () => {
           </div>
         </div>
       )}
+
       {/* Individual Registration Modal */}
       {!isTeamEvent && qrData && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
@@ -202,6 +250,12 @@ const QrScanner = () => {
               </ul>
             </div>
             <button
+              onClick={handleIndividualEventSubmission}
+              className="px-4 py-2 bg-green-500 text-white rounded-md mt-4"
+            >
+              Mark Attendance
+            </button>
+            <button
               onClick={closeModal}
               className="px-4 py-2 bg-red-700 text-white rounded-md mt-4"
             >
@@ -239,15 +293,32 @@ const QrScanner = () => {
               <ul className="text-white space-y-2">
                 {qrData.team.map((member: any, index: number) => (
                   <li key={member.user_id}>
-                    <span className="font-semibold text-green-300">
-                      Member {index + 1}:
-                    </span>{" "}
-                    <span className="break-words">
-                      {member.Name} ({member.email})
-                    </span>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        value={member.email}
+                        onChange={() => handleCheckboxChange(member.email)}
+                        checked={selectedMembers.includes(member.email)}
+                        className="mr-2"
+                      />
+                      <span className="font-semibold text-green-300">
+                        Member {index + 1}:
+                      </span>{" "}
+                      <span className="break-words">
+                        {member.Name} ({member.email})
+                      </span>
+                    </label>
                   </li>
                 ))}
               </ul>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={handleTeamEventSubmission}
+                className="px-4 py-2 bg-green-500 text-white rounded-md"
+              >
+                Mark Attendance
+              </button>
             </div>
             <button
               onClick={closeModal}
