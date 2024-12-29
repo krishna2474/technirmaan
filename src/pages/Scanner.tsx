@@ -113,6 +113,7 @@ const QrScanner = () => {
 
     try {
       await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
+        event_id: qrData.event_id, // Sending event_id
         emails: selectedMembers,
       });
       setError(null);
@@ -131,12 +132,18 @@ const QrScanner = () => {
 
     try {
       await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
+        user_id: qrData.user_id,
+        event_id: qrData.event_id, // Sending event_id
         emails: [qrData.email],
       });
       setError(null);
       closeModal();
-    } catch (error) {
-      setError("Error submitting attendance.");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error || // For Axios errors
+        error.message || // For general errors
+        "Error submitting attendance."; // Default message
+      setError(errorMessage);
     }
   };
 
@@ -202,7 +209,7 @@ const QrScanner = () => {
 
       {/* Individual Registration Modal */}
       {!isTeamEvent && qrData && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-40">
           <div className="bg-black p-6 rounded-lg shadow-lg max-w-[90%] sm:max-w-[600px] w-full">
             <h2 className="text-green-500 font-semibold text-xl mb-4">
               Individual Registration
@@ -212,39 +219,39 @@ const QrScanner = () => {
                 <li>
                   <span className="font-semibold text-green-300">
                     Registration ID:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.registration_id}</span>
                 </li>
                 <li>
-                  <span className="font-semibold text-green-300">User ID:</span>{" "}
+                  <span className="font-semibold text-green-300">User ID:</span>
                   <span className="break-words">{qrData.user_id}</span>
                 </li>
                 <li>
-                  <span className="font-semibold text-green-300">Name:</span>{" "}
+                  <span className="font-semibold text-green-300">Name:</span>
                   <span className="break-words">{qrData.Name}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
                     Email Address:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.email}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
                     Phone Number:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.phone}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
                     Event ID:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.event_id}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
                     Event Name:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.event_name}</span>
                 </li>
               </ul>
@@ -269,7 +276,7 @@ const QrScanner = () => {
 
       {/* Team Registration Modal */}
       {isTeamEvent && qrData && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-30">
           <div className="bg-black p-6 rounded-lg shadow-lg max-w-[90%] sm:max-w-[600px] w-full">
             <h2 className="text-green-500 font-semibold text-xl mb-4">
               Team Registration
@@ -279,39 +286,42 @@ const QrScanner = () => {
                 <li>
                   <span className="font-semibold text-green-300">
                     Event Name:
-                  </span>{" "}
+                  </span>
                   <span className="break-words">{qrData.event_name}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
-                    Event ID:
-                  </span>{" "}
-                  <span className="break-words">{qrData.event_id}</span>
-                </li>
-              </ul>
-              <h3 className="text-green-400 font-semibold text-lg mb-2">
-                Team Members:
-              </h3>
-              <ul className="text-white space-y-2">
-                {qrData.team.map((member: any, index: number) => (
-                  <li key={member.user_id}>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        value={member.email}
-                        onChange={() => handleCheckboxChange(member.email)}
-                        checked={selectedMembers.includes(member.email)}
-                        className="mr-2"
-                      />
-                      <span className="font-semibold text-green-300">
-                        Member {index + 1}:
-                      </span>{" "}
-                      <span className="break-words">
-                        {member.Name} ({member.email})
+                    Team Members:
+                  </span>
+                  <div className="space-y-2">
+                    {Array.isArray(qrData.team) && qrData.team.length > 0 ? (
+                      qrData.team.map(
+                        (
+                          member: { Name: string; email: string },
+                          index: number
+                        ) => (
+                          <label
+                            key={index}
+                            className="block text-white cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              value={member.email}
+                              onChange={() =>
+                                handleCheckboxChange(member.email)
+                              }
+                            />{" "}
+                            {member.Name} ({member.email})
+                          </label>
+                        )
+                      )
+                    ) : (
+                      <span className="text-red-500">
+                        No team members found.
                       </span>
-                    </label>
-                  </li>
-                ))}
+                    )}
+                  </div>
+                </li>
               </ul>
             </div>
             <div className="flex justify-end mt-4 space-x-4">
@@ -323,7 +333,7 @@ const QrScanner = () => {
               </button>
               <button
                 onClick={closeModal}
-                className="px-4 py-2 rounded-md mt-4 bg-red-700 text-white"
+                className="px-4 py-2 bg-red-700 text-white rounded-md"
               >
                 Close
               </button>
