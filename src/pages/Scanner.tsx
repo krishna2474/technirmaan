@@ -6,17 +6,16 @@ import { BACKEND_URL } from "../config";
 const QrScanner = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>("");
-  const [scanResult, setScanResult] = useState<string>("");
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [scanner, setScanner] = useState<BrowserMultiFormatReader | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [qrData, setQrData] = useState<any>(null);
   const [isTeamEvent, setIsTeamEvent] = useState<boolean>(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false); // New loading state
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  console.log(scanResult);
 
-  // Fetch events on component mount
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -30,7 +29,6 @@ const QrScanner = () => {
     fetchEvents();
   }, []);
 
-  // Initialize the scanner
   useEffect(() => {
     const initScanner = async () => {
       const newScanner = new BrowserMultiFormatReader();
@@ -45,7 +43,6 @@ const QrScanner = () => {
     };
   }, []);
 
-  // Start scanning
   const startScanning = async () => {
     if (scanner && videoRef.current && selectedEvent) {
       try {
@@ -55,7 +52,6 @@ const QrScanner = () => {
           videoRef.current,
           (result) => {
             if (result) {
-              setScanResult(result.getText());
               validateEvent(result.getText());
               stopScanning();
             }
@@ -69,7 +65,6 @@ const QrScanner = () => {
     }
   };
 
-  // Stop scanning
   const stopScanning = () => {
     if (scanner) {
       scanner.reset();
@@ -77,7 +72,6 @@ const QrScanner = () => {
     }
   };
 
-  // Validate the event ID and determine modal type
   const validateEvent = (qrData: string) => {
     const qrDataObj = JSON.parse(qrData);
     if (qrDataObj.event_id === selectedEvent) {
@@ -89,7 +83,6 @@ const QrScanner = () => {
     }
   };
 
-  // Handle member checkbox selection for team events
   const handleCheckboxChange = (email: string) => {
     setSelectedMembers((prevSelectedMembers) =>
       prevSelectedMembers.includes(email)
@@ -98,58 +91,70 @@ const QrScanner = () => {
     );
   };
 
-  // Close modals
   const closeModal = () => {
     setQrData(null);
     setSelectedMembers([]);
   };
 
-  // Handle form submission for team event
   const handleTeamEventSubmission = async () => {
     if (selectedMembers.length === 0) {
       setError("Please select at least one team member.");
       return;
     }
 
+    setLoading(true); // Start loading when submitting
     try {
       await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
-        event_id: qrData.event_id, // Sending event_id
+        event_id: qrData.event_id,
         emails: selectedMembers,
       });
+      setIsSuccess(true); // Show success modal
       setError(null);
       closeModal();
-    } catch (error) {
-      setError("Error submitting attendance.");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Error submitting attendance.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false); // Stop loading once the request is complete
     }
   };
 
-  // Handle individual event attendance submission
   const handleIndividualEventSubmission = async () => {
     if (!qrData) {
       setError("Invalid QR data.");
       return;
     }
 
+    setLoading(true); // Start loading when submitting
     try {
       await axios.post(`${BACKEND_URL}/api/v1/attendance/mark`, {
         user_id: qrData.user_id,
-        event_id: qrData.event_id, // Sending event_id
+        event_id: qrData.event_id,
         emails: [qrData.email],
       });
+      setIsSuccess(true); // Show success modal
       setError(null);
       closeModal();
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || // For Axios errors
-        error.message || // For general errors
-        "Error submitting attendance."; // Default message
+        error.response?.data?.error ||
+        error.message ||
+        "Error submitting attendance.";
       setError(errorMessage);
+    } finally {
+      setLoading(false); // Stop loading once the request is complete
     }
+  };
+
+  const closeSuccessModal = () => {
+    setIsSuccess(false);
   };
 
   return (
     <div className="flex flex-col justify-center items-center text-white px-4 sm:px-6 md:px-8 lg:px-16">
-      {/* Event Selection */}
       <div className="flex justify-center mt-5">
         <label htmlFor="event-select">Select Event:</label>
         <select
@@ -167,12 +172,10 @@ const QrScanner = () => {
         </select>
       </div>
 
-      {/* QR Scanner */}
       <div className="relative w-full max-w-[400px] h-[300px] border-4 border-green-500 rounded-xl overflow-hidden mt-5">
         <video ref={videoRef} className="w-full h-full object-cover" />
       </div>
 
-      {/* Start/Stop Scanning */}
       <div className="mt-4">
         {isScanning ? (
           <button
@@ -191,7 +194,6 @@ const QrScanner = () => {
         )}
       </div>
 
-      {/* Error Modal */}
       {error && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-black p-6 rounded-lg shadow-lg max-w-sm w-full">
@@ -199,7 +201,7 @@ const QrScanner = () => {
             <p className="text-white mt-2">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="px-4 py-2 bg-red-700 text-white rounded-md mt-4"
+              className="px-4 py-2 bg-red-600 text-white rounded-md mt-4"
             >
               Close
             </button>
@@ -207,7 +209,21 @@ const QrScanner = () => {
         </div>
       )}
 
-      {/* Individual Registration Modal */}
+      {isSuccess && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-black p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-green-500 font-semibold text-xl">Success</h2>
+            <p className="text-white mt-2">Attendance marked successfully!</p>
+            <button
+              onClick={closeSuccessModal}
+              className="px-4 py-2 bg-white text-green-500 rounded-md mt-4"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       {!isTeamEvent && qrData && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-40">
           <div className="bg-black p-6 rounded-lg shadow-lg max-w-[90%] sm:max-w-[600px] w-full">
@@ -218,126 +234,111 @@ const QrScanner = () => {
               <ul className="text-white space-y-2">
                 <li>
                   <span className="font-semibold text-green-300">
-                    Registration ID:
+                    Registration ID:{" "}
                   </span>
                   <span className="break-words">{qrData.registration_id}</span>
                 </li>
                 <li>
-                  <span className="font-semibold text-green-300">User ID:</span>
-                  <span className="break-words">{qrData.user_id}</span>
-                </li>
-                <li>
-                  <span className="font-semibold text-green-300">Name:</span>
+                  <span className="font-semibold text-green-300">Name: </span>
                   <span className="break-words">{qrData.Name}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
-                    Email Address:
+                    User ID:{" "}
+                  </span>
+                  <span className="break-words">{qrData.user_id}</span>
+                </li>
+
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Email Address:{" "}
                   </span>
                   <span className="break-words">{qrData.email}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
-                    Phone Number:
+                    Phone Number:{" "}
                   </span>
                   <span className="break-words">{qrData.phone}</span>
                 </li>
                 <li>
-                  <span className="font-semibold text-green-300">
-                    Event ID:
-                  </span>
-                  <span className="break-words">{qrData.event_id}</span>
-                </li>
-                <li>
-                  <span className="font-semibold text-green-300">
-                    Event Name:
-                  </span>
+                  <span className="font-semibold text-green-300">Event: </span>
                   <span className="break-words">{qrData.event_name}</span>
                 </li>
               </ul>
             </div>
-            <div className="flex justify-end mt-4 space-x-4">
-              <button
-                onClick={handleIndividualEventSubmission}
-                className="px-4 py-2 bg-green-500 text-white rounded-md"
-              >
-                Mark Attendance
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-red-700 text-white rounded-md"
-              >
-                Close
-              </button>
-            </div>
+
+            <button
+              onClick={handleIndividualEventSubmission}
+              className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg mt-4 w-full"
+              disabled={loading} // Disable the button when loading
+            >
+              {loading ? "Submitting..." : "Mark Attendance"}
+            </button>
+
+            <button
+              onClick={closeModal}
+              className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg mt-4 w-full"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
 
-      {/* Team Registration Modal */}
       {isTeamEvent && qrData && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-30">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-40">
           <div className="bg-black p-6 rounded-lg shadow-lg max-w-[90%] sm:max-w-[600px] w-full">
             <h2 className="text-green-500 font-semibold text-xl mb-4">
-              Team Registration
+              Team Event Registration
             </h2>
             <div className="max-h-[60vh] overflow-auto">
-              <ul className="text-white space-y-2 mb-4">
+              <ul className="text-white space-y-2">
                 <li>
                   <span className="font-semibold text-green-300">
-                    Event Name:
+                    Registration ID:{" "}
                   </span>
+                  <span className="break-words">{qrData.registration_id}</span>
+                </li>
+
+                <li>
+                  <span className="font-semibold text-green-300">Event: </span>
                   <span className="break-words">{qrData.event_name}</span>
                 </li>
                 <li>
                   <span className="font-semibold text-green-300">
                     Team Members:
                   </span>
-                  <div className="space-y-2">
-                    {Array.isArray(qrData.team) && qrData.team.length > 0 ? (
-                      qrData.team.map(
-                        (
-                          member: { Name: string; email: string },
-                          index: number
-                        ) => (
-                          <label
-                            key={index}
-                            className="block text-white cursor-pointer"
-                          >
-                            <input
-                              type="checkbox"
-                              value={member.email}
-                              onChange={() =>
-                                handleCheckboxChange(member.email)
-                              }
-                            />{" "}
-                            {member.Name} ({member.email})
-                          </label>
-                        )
-                      )
-                    ) : (
-                      <span className="text-red-500">
-                        No team members found.
-                      </span>
-                    )}
-                  </div>
+                  <span className="break-words">
+                    {qrData.team?.map((member: any) => (
+                      <div key={member.email}>
+                        <input
+                          type="checkbox"
+                          checked={selectedMembers.includes(member.email)}
+                          onChange={() => handleCheckboxChange(member.email)}
+                        />
+                        {member.Name} - {member.email}
+                      </div>
+                    ))}
+                  </span>
                 </li>
               </ul>
             </div>
-            <div className="flex justify-end mt-4 space-x-4">
-              <button
-                onClick={handleTeamEventSubmission}
-                className="px-4 py-2 bg-green-500 text-white rounded-md"
-              >
-                Mark Attendance
-              </button>
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-red-700 text-white rounded-md"
-              >
-                Close
-              </button>
-            </div>
+
+            <button
+              onClick={handleTeamEventSubmission}
+              className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg mt-4 w-full"
+              disabled={loading} // Disable the button when loading
+            >
+              {loading ? "Submitting..." : "Mark Attendance"}
+            </button>
+
+            <button
+              onClick={closeModal}
+              className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg mt-4 w-full"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
