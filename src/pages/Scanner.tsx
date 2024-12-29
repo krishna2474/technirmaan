@@ -145,14 +145,13 @@ const QrScanner = () => {
             <p className="text-white mt-2">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="px-4 py-2 bg-gray-300 rounded-md mt-4"
+              className="px-4 py-2 bg-red-700 text-white rounded-md mt-4"
             >
               Close
             </button>
           </div>
         </div>
       )}
-
       {/* Individual Registration Modal */}
       {!isTeamEvent && qrData && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
@@ -162,12 +161,44 @@ const QrScanner = () => {
             </h2>
             <div className="max-h-[60vh] overflow-auto">
               <ul className="text-white space-y-2">
-                {Object.entries(qrData).map(([key, value]) => (
-                  <li key={key}>
-                    <span className="font-semibold text-green-300">{key}:</span>{" "}
-                    <span className="break-words">{value + ""}</span>
-                  </li>
-                ))}
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Registration ID:
+                  </span>{" "}
+                  <span className="break-words">{qrData.registration_id}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">User ID:</span>{" "}
+                  <span className="break-words">{qrData.user_id}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">Name:</span>{" "}
+                  <span className="break-words">{qrData.Name}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Email Address:
+                  </span>{" "}
+                  <span className="break-words">{qrData.email}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Phone Number:
+                  </span>{" "}
+                  <span className="break-words">{qrData.phone}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Event ID:
+                  </span>{" "}
+                  <span className="break-words">{qrData.event_id}</span>
+                </li>
+                <li>
+                  <span className="font-semibold text-green-300">
+                    Event Name:
+                  </span>{" "}
+                  <span className="break-words">{qrData.event_name}</span>
+                </li>
               </ul>
             </div>
             <button
