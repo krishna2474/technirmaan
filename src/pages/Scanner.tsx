@@ -249,18 +249,20 @@ const QrScanner = () => {
                 </li>
               </ul>
             </div>
-            <button
-              onClick={handleIndividualEventSubmission}
-              className="px-4 py-2 bg-green-500 text-white rounded-md mt-4"
-            >
-              Mark Attendance
-            </button>
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 bg-red-700 text-white rounded-md mt-4"
-            >
-              Close
-            </button>
+            <div className="flex justify-end mt-4 space-x-4">
+              <button
+                onClick={handleIndividualEventSubmission}
+                className="px-4 py-2 bg-green-500 text-white rounded-md"
+              >
+                Mark Attendance
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-red-700 text-white rounded-md"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -312,20 +314,20 @@ const QrScanner = () => {
                 ))}
               </ul>
             </div>
-            <div className="flex justify-end mt-4">
+            <div className="flex justify-end mt-4 space-x-4">
               <button
                 onClick={handleTeamEventSubmission}
                 className="px-4 py-2 bg-green-500 text-white rounded-md"
               >
                 Mark Attendance
               </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 rounded-md mt-4 bg-red-700 text-white"
+              >
+                Close
+              </button>
             </div>
-            <button
-              onClick={closeModal}
-              className="px-4 py-2 rounded-md mt-4 bg-red-700 text-white"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
