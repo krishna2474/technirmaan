@@ -3,9 +3,10 @@ import { Landing } from "./pages/Landing";
 import { Registration } from "./pages/Registration";
 import ScrollToTop from "./components/ScrollToTop";
 import { Verify } from "./pages/Verify";
-import { Payment } from "./pages/Payment";
 import { Teams } from "./pages/Teams";
+import { Payment } from "./pages/Payment";
 import GenerateQrPage from "./pages/GenerateQr";
+import QrScanner from "./pages/Scanner";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/teams" element={<Teams />} />
         <Route path="/generate-qr" element={<GenerateQrPage />} />
+        <Route path="/scanner" element={<QrScanner />} />
       </Routes>
     </>
   );
