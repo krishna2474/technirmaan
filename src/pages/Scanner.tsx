@@ -70,14 +70,29 @@ const QrScanner = () => {
   };
 
   return (
-    <div className="text-white">
-      <h2>QR Code Scanner</h2>
-      <video ref={videoRef} style={{ width: "100%", maxWidth: 400 }} />
-      <div>
+    <div className="flex flex-col items-center p-5 space-y-6 text-white">
+      <h2 className="text-2xl font-semibold">QR Code Scanner</h2>
+
+      {/* QR scanner frame */}
+      <div className="relative w-full max-w-[400px] h-[300px] border-4 border-green-500 rounded-xl overflow-hidden">
+        <video ref={videoRef} className="w-full h-full object-cover" />
+      </div>
+
+      <div className="mt-4">
         {isScanning ? (
-          <button onClick={stopScanning}>Stop Scanning</button>
+          <button
+            onClick={stopScanning}
+            className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg"
+          >
+            Stop Scanning
+          </button>
         ) : (
-          <button onClick={startScanning}>Start Scanning</button>
+          <button
+            onClick={startScanning}
+            className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg"
+          >
+            Start Scanning
+          </button>
         )}
       </div>
 
@@ -87,32 +102,14 @@ const QrScanner = () => {
 
       {/* Modal for showing scan result */}
       {showModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <div
-            style={{
-              background: "#333",
-              color: "#fff",
-              padding: "20px",
-              borderRadius: "8px",
-              width: "300px",
-              textAlign: "center",
-            }}
-          >
-            <h3>QR Code Data</h3>
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+          <div className="bg-gray-800 text-white p-6 rounded-lg w-4/5 max-w-lg text-center">
+            <h3 className="text-xl font-semibold">QR Code Data</h3>
             {formatScanResult(scanResult)} {/* Show formatted scan result */}
-            <button onClick={closeModal} style={{ marginTop: "10px" }}>
+            <button
+              onClick={closeModal}
+              className="mt-4 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg"
+            >
               Close
             </button>
           </div>
