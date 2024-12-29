@@ -59,8 +59,18 @@ const QrScanner = () => {
     setShowModal(false);
   };
 
+  // Format scan result to make it more readable (e.g., pretty print JSON if it's JSON)
+  const formatScanResult = (result: string) => {
+    try {
+      const parsed = JSON.parse(result);
+      return <pre>{JSON.stringify(parsed, null, 2)}</pre>; // Pretty print JSON
+    } catch (e) {
+      return <p>{result}</p>; // If it's not JSON, return as plain text
+    }
+  };
+
   return (
-    <div>
+    <div className="text-white">
       <h2>QR Code Scanner</h2>
       <video ref={videoRef} style={{ width: "100%", maxWidth: 400 }} />
       <div>
@@ -84,7 +94,7 @@ const QrScanner = () => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -92,7 +102,8 @@ const QrScanner = () => {
         >
           <div
             style={{
-              background: "#fff",
+              background: "#333",
+              color: "#fff",
               padding: "20px",
               borderRadius: "8px",
               width: "300px",
@@ -100,8 +111,10 @@ const QrScanner = () => {
             }}
           >
             <h3>QR Code Data</h3>
-            <p>{scanResult}</p>
-            <button onClick={closeModal}>Close</button>
+            {formatScanResult(scanResult)} {/* Show formatted scan result */}
+            <button onClick={closeModal} style={{ marginTop: "10px" }}>
+              Close
+            </button>
           </div>
         </div>
       )}
