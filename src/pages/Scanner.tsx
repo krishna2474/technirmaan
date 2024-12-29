@@ -5,9 +5,10 @@ const QrScanner = () => {
   console.log("Scanner");
 
   const [scanResult, setScanResult] = useState<string>("");
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [scanner, setScanner] = useState<BrowserMultiFormatReader | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
     // Initialize ZXing scanner
@@ -36,6 +37,8 @@ const QrScanner = () => {
           (result) => {
             if (result) {
               setScanResult(result.getText());
+              stopScanning(); // Stop scanning once the QR code is found
+              setShowModal(true); // Show the modal with the scan result
             }
           }
         );
@@ -52,6 +55,10 @@ const QrScanner = () => {
     }
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div>
       <h2>QR Code Scanner</h2>
@@ -63,9 +70,41 @@ const QrScanner = () => {
           <button onClick={startScanning}>Start Scanning</button>
         )}
       </div>
+
       <div>
         <p>Scan Result: {scanResult}</p>
       </div>
+
+      {/* Modal for showing scan result */}
+      {showModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "20px",
+              borderRadius: "8px",
+              width: "300px",
+              textAlign: "center",
+            }}
+          >
+            <h3>QR Code Data</h3>
+            <p>{scanResult}</p>
+            <button onClick={closeModal}>Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
