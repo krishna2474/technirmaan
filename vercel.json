@@ -54,6 +54,10 @@
       "dest": "/"
     },
     {
+      "src": "/generate-qr",
+      "dest": "/"
+    },
+    {
       "src": "/scanner",
       "dest": "/"
     }

@@ -1,79 +1,60 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
-export const Payment = () => {
-  const [amount, setAmount] = useState(null); // Default to null until fetched
+export const UpiPaymentPage = () => {
+  const [upiId, setUpiId] = useState("");
   const [transactionId, setTransactionId] = useState("");
   const [paymentStatus, setPaymentStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  console.log(paymentStatus);
-
-  const [email, setEmail] = useState("");
-  const [eventId, setEventId] = useState("");
-
-  // Parse query parameters from the URL
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const emailFromUrl = params.get("email");
-    const eventIdFromUrl = params.get("event_id");
-
-    if (!emailFromUrl || !eventIdFromUrl) {
-      navigate("/register"); // Redirect to registration if email or event_id is missing
-    } else {
-      setEmail(emailFromUrl);
-      setEventId(eventIdFromUrl);
-      fetchEventAmount(eventIdFromUrl); // Fetch the amount based on eventId
-    }
-  }, [location.search, navigate]);
-
-  // Fetch the amount for the event from the database
-  const fetchEventAmount = async (eventId: string) => {
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/event/${eventId}`);
-      setAmount(response.data.amount); // Assuming response contains the 'amount'
-    } catch (error) {
-      console.error("Failed to fetch event amount", error);
-      alert("Failed to load event details. Please try again.");
-    }
-  };
 
   const initiatePayment = async () => {
-    if (!amount) {
-      alert("Amount not available for this event.");
+    if (!upiId) {
+      alert("Please enter a valid UPI ID.");
       return;
     }
 
+    setLoading(true);
     try {
+      // Send UPI ID to backend to initiate payment request
       const response = await axios.post(
-        `${BACKEND_URL}/api/vi/payment/initiate`,
-        { email, eventId, amount },
-        { headers: { "Content-Type": "application/json" } }
+        `${BACKEND_URL}/api/payment/upi/initiate`,
+        {
+          upiId,
+        }
       );
 
-      const { transactionId, paymentUrl } = response.data;
-      setTransactionId(transactionId);
+      const { paymentLink } = response.data;
 
-      // Redirect to the payment gateway
-      window.location.href = paymentUrl;
+      // Redirect the user to the UPI payment link
+      window.location.href = paymentLink;
     } catch (error) {
-      console.error("Payment initiation failed", error);
+      console.error("Failed to initiate payment", error);
       alert("Failed to initiate payment. Please try again.");
+      setLoading(false);
     }
   };
 
   const checkPaymentStatus = async () => {
-    try {
-      const response = await axios.get(
-        `${BACKEND_URL}/api/payment/status?transactionId=${transactionId}`
-      );
-      setPaymentStatus(response.data.status);
+    if (!transactionId) {
+      alert("Please enter a valid transaction ID.");
+      return;
+    }
 
-      if (response.data.status === "SUCCESS") {
+    try {
+      // Send transaction ID to backend to check payment status
+      const response = await axios.get(`${BACKEND_URL}/api/payment/status`, {
+        params: { transactionId },
+      });
+
+      const { status } = response.data;
+      setPaymentStatus(status);
+
+      if (status === "SUCCESS") {
         alert("Payment successful!");
-        navigate(`/generate-qr?email=${email}&event_id=${eventId}`); // Redirect to QR Code page
+        navigate("/next-step"); // Redirect to the next page
       } else {
         alert("Payment failed or pending. Please try again.");
       }
@@ -89,32 +70,54 @@ export const Payment = () => {
         <h1 className="text-2xl font-bold text-center mb-4">
           Complete Your Payment
         </h1>
-        {amount !== null ? (
-          <>
-            <p className="text-center text-lg mb-6">Amount to Pay: ₹{amount}</p>
-            <button
-              className="w-full bg-indigo-600 text-white py-2 rounded-lg text-xl mb-4 hover:bg-indigo-700 transition duration-200"
-              onClick={initiatePayment}
-            >
-              Pay Now
-            </button>
+        <div className="mb-4">
+          <label htmlFor="upiId" className="block text-lg font-semibold mb-2">
+            Enter UPI ID
+          </label>
+          <input
+            type="text"
+            id="upiId"
+            className="w-full px-4 py-2 border rounded-lg"
+            value={upiId}
+            onChange={(e) => setUpiId(e.target.value)}
+            placeholder="yourname@upi"
+          />
+        </div>
 
-            {transactionId && (
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Transaction ID: {transactionId}
-                </p>
-                <button
-                  className="w-full bg-green-600 text-white py-2 rounded-lg text-xl mt-4 hover:bg-green-700 transition duration-200"
-                  onClick={checkPaymentStatus}
-                >
-                  Check Payment Status
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-center text-lg mb-6">Loading event details...</p>
+        <button
+          className="w-full bg-indigo-600 text-white py-2 rounded-lg text-xl mb-4 hover:bg-indigo-700 transition duration-200"
+          onClick={initiatePayment}
+          disabled={loading}
+        >
+          {loading ? "Processing..." : "Pay Now"}
+        </button>
+
+        <div className="mb-4">
+          <label
+            htmlFor="transactionId"
+            className="block text-lg font-semibold mb-2"
+          >
+            Enter Transaction ID
+          </label>
+          <input
+            type="text"
+            id="transactionId"
+            className="w-full px-4 py-2 border rounded-lg"
+            value={transactionId}
+            onChange={(e) => setTransactionId(e.target.value)}
+            placeholder="Transaction ID"
+          />
+        </div>
+
+        <button
+          className="w-full bg-green-600 text-white py-2 rounded-lg text-xl mb-4 hover:bg-green-700 transition duration-200"
+          onClick={checkPaymentStatus}
+        >
+          Check Payment Status
+        </button>
+
+        {paymentStatus && (
+          <p className="text-center mt-4 text-lg">{paymentStatus}</p>
         )}
       </div>
     </div>
