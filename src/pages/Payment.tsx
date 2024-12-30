@@ -1,125 +1,184 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
+import Navbar from "../components/NavBar";
 
-export const UpiPaymentPage = () => {
-  const [upiId, setUpiId] = useState("");
-  const [transactionId, setTransactionId] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState(null);
+interface Payment {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+declare global {
+  interface Window {
+    Razorpay: any; // Or a more specific type if available
+  }
+}
+
+export const PaymentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loadingData, setLoadingData] = useState(true); // State to track data loading
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [eventPrice, setEventPrice] = useState("");
+  const [eventName, setEventName] = useState("");
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const event_id = queryParams.get("event_id");
+  const email = queryParams.get("email");
+  const nav = useNavigate();
+
+  useEffect(() => {
+    if (event_id) {
+      axios
+        .get(`${BACKEND_URL}/api/v1/event/${event_id}`)
+        .then((response) => {
+          const price = response.data.price;
+          setEventPrice(price);
+          setEventName(response.data.name);
+          setLoadingData(false); // Set loadingData to false after data is fetched
+        })
+        .catch((error) => {
+          console.error("Error fetching event details:", error);
+          setPaymentStatus("Error fetching event details. Please try again.");
+          setLoadingData(false); // Set loadingData to false if there's an error
+        });
+    }
+  }, [event_id]);
+
+  const handlePaymentSuccess = async (payment: Payment) => {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+      payment;
+
+    setLoading(true);
+
+    try {
+      // Send payment details to backend for verification
+      const { data } = await axios.post(
+        `${BACKEND_URL}/api/v1/payment/verify`,
+        {
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_signature,
+          email,
+          event_id,
+        }
+      );
+
+      if (data.success) {
+        setPaymentStatus("Payment captured successfully!");
+        nav(`/generate-qr?email=${email}&event_id=${event_id}`);
+      } else {
+        setPaymentStatus("Payment verification failed. Please try again.");
+      }
+    } catch (error) {
+      setLoading(false);
+      setPaymentStatus("Error verifying payment. Please try again.");
+    }
+  };
+
+  const handlePaymentFailure = (error: any) => {
+    console.error("Payment failed:", error);
+    setPaymentStatus("Payment failed. Please try again.");
+  };
 
   const initiatePayment = async () => {
-    if (!upiId) {
-      alert("Please enter a valid UPI ID.");
+    if (!eventPrice || !email || !event_id) {
+      setPaymentStatus("Error: Missing required payment details.");
+      return;
+    }
+
+    const numericPrice = Number(eventPrice);
+    if (isNaN(numericPrice)) {
+      setPaymentStatus("Error: Invalid event price format.");
       return;
     }
 
     setLoading(true);
+
     try {
-      // Send UPI ID to backend to initiate payment request
-      const response = await axios.post(
-        `${BACKEND_URL}/api/payment/upi/initiate`,
+      const { data } = await axios.post(
+        `${BACKEND_URL}/api/v1/payment/initiate`,
         {
-          upiId,
+          event_id,
+          email,
+          amount: numericPrice,
         }
       );
 
-      const { paymentLink } = response.data;
+      const { orderId } = data;
+      const RAZORPAY_API_KEY = process.env.RAZORPAY_API_KEY;
+      // Create Razorpay script dynamically
+      const script = document.createElement("script");
+      script.src = `https://checkout.razorpay.com/v1/checkout.js`;
+      script.async = true;
+      script.onload = () => {
+        const options = {
+          key: RAZORPAY_API_KEY,
+          amount: numericPrice * 100,
+          currency: "INR",
+          name: "TechNirmaan",
+          description: "Payment for Event",
+          order_id: orderId,
+          handler: handlePaymentSuccess,
+          theme: {
+            color: "#F37254",
+          },
+          prefill: {
+            email: email,
+          },
+          modal: {
+            ondismiss: () => {
+              console.log("Payment modal dismissed");
+            },
+          },
+        };
 
-      // Redirect the user to the UPI payment link
-      window.location.href = paymentLink;
-    } catch (error) {
-      console.error("Failed to initiate payment", error);
-      alert("Failed to initiate payment. Please try again.");
+        const rzp1 = new window.Razorpay(options);
+        rzp1.on("payment.failed", handlePaymentFailure);
+        rzp1.open();
+      };
+      document.body.appendChild(script);
+    } catch (error: any) {
       setLoading(false);
-    }
-  };
-
-  const checkPaymentStatus = async () => {
-    if (!transactionId) {
-      alert("Please enter a valid transaction ID.");
-      return;
-    }
-
-    try {
-      // Send transaction ID to backend to check payment status
-      const response = await axios.get(`${BACKEND_URL}/api/payment/status`, {
-        params: { transactionId },
-      });
-
-      const { status } = response.data;
-      setPaymentStatus(status);
-
-      if (status === "SUCCESS") {
-        alert("Payment successful!");
-        navigate("/next-step"); // Redirect to the next page
-      } else {
-        alert("Payment failed or pending. Please try again.");
-      }
-    } catch (error) {
-      console.error("Failed to fetch payment status", error);
-      alert("Error while checking payment status. Please contact support.");
+      console.error("Error initiating payment:", error);
+      setPaymentStatus("Error initiating payment. Please try again.");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-4">
-          Complete Your Payment
-        </h1>
-        <div className="mb-4">
-          <label htmlFor="upiId" className="block text-lg font-semibold mb-2">
-            Enter UPI ID
-          </label>
-          <input
-            type="text"
-            id="upiId"
-            className="w-full px-4 py-2 border rounded-lg"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            placeholder="yourname@upi"
-          />
-        </div>
-
-        <button
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg text-xl mb-4 hover:bg-indigo-700 transition duration-200"
-          onClick={initiatePayment}
-          disabled={loading}
-        >
-          {loading ? "Processing..." : "Pay Now"}
-        </button>
-
-        <div className="mb-4">
-          <label
-            htmlFor="transactionId"
-            className="block text-lg font-semibold mb-2"
+    <>
+      <Navbar />
+      <div className="flex flex-col items-center min-h-screen text-white pt-24 px-4 sm:px-8 md:px-16">
+        {" "}
+        {/* Added padding and margin */}
+        <h2 className="text-3xl font-bold mb-6 text-center">
+          {loadingData ? (
+            <div className="animate-pulse bg-gray-600 rounded w-3/4 h-6"></div> // Skeleton loader
+          ) : (
+            `Complete Your Payment for Registering in ${eventName}`
+          )}
+        </h2>
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md text-center">
+          {loadingData ? (
+            <div className="animate-pulse bg-gray-600 rounded w-full h-6 mb-4"></div> // Skeleton loader for price
+          ) : (
+            <p className="text-xl mb-4">Event Price: ₹{eventPrice}</p>
+          )}
+          <button
+            className="bg-purple-500 hover:bg-purple-400 text-white py-2 px-6 rounded-lg w-full transition duration-300"
+            onClick={initiatePayment}
+            disabled={loading || loadingData} // Disable button while loading
           >
-            Enter Transaction ID
-          </label>
-          <input
-            type="text"
-            id="transactionId"
-            className="w-full px-4 py-2 border rounded-lg"
-            value={transactionId}
-            onChange={(e) => setTransactionId(e.target.value)}
-            placeholder="Transaction ID"
-          />
+            {loading ? "Processing..." : "Pay Now"}
+          </button>
         </div>
-
-        <button
-          className="w-full bg-green-600 text-white py-2 rounded-lg text-xl mb-4 hover:bg-green-700 transition duration-200"
-          onClick={checkPaymentStatus}
-        >
-          Check Payment Status
-        </button>
-
         {paymentStatus && (
-          <p className="text-center mt-4 text-lg">{paymentStatus}</p>
+          <p className="mt-6 text-lg text-center">{paymentStatus}</p>
         )}
       </div>
-    </div>
+    </>
   );
 };
+
+export default PaymentPage;

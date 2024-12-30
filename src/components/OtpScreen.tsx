@@ -78,8 +78,8 @@ export const OtpScreen = () => {
 
       if (response.data.success) {
         alert("Account Verified");
-        nav(`/generate-qr?email=${email}&event_id=${event_id}`);
-        // nav(`/payment?email=${email}&event_id=${event_id}`);
+        // nav(`/generate-qr?email=${email}&event_id=${event_id}`);
+        nav(`/payment?email=${email}&event_id=${event_id}`);
       } else {
         alert(response.data.error || "Failed to verify OTP");
       }

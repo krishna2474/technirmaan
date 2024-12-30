@@ -60,6 +60,10 @@
     {
       "src": "/scanner",
       "dest": "/"
+    },
+    {
+      "src": "/payment",
+      "dest": "/"
     }
   ]
 }
