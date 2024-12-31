@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,9 +13,25 @@ export const OtpScreen = () => {
   const inputRefs = useRef<HTMLInputElement[]>([]);
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState<string>("");
+  const [timer, setTimer] = useState<number>(30); // Timer state for 30 seconds
+  const [resendDisabled, setResendDisabled] = useState<boolean>(true); // Resend button disabled state
+
+  // Timer logic
+  useEffect(() => {
+    if (timer === 0) {
+      setResendDisabled(false); // Enable resend button when timer hits 0
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const handleInputChange = (index: number, value: string) => {
-    if (value.length === 1) {
+    if (value.length === 1 && /^[0-9]$/.test(value)) {
       // Update the current field
       inputRefs.current[index].value = value;
 
@@ -45,7 +61,7 @@ export const OtpScreen = () => {
     values.forEach((char, i) => {
       if (index + i < inputRefs.current.length) {
         const input = inputRefs.current[index + i];
-        if (input) {
+        if (input && /^[0-9]$/.test(char)) {
           input.value = char;
           handleInputChange(index + i, char);
         }
@@ -91,6 +107,33 @@ export const OtpScreen = () => {
     }
   };
 
+  const handleResendOtp = async () => {
+    setResendDisabled(true);
+    setTimer(30); // Reset the timer to 30 seconds
+    setLoading(true);
+    try {
+      // Call the backend to resend OTP
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/verify/resend-otp`,
+        {
+          email,
+          event_id,
+        }
+      );
+
+      if (response.data.success) {
+        alert("OTP sent to your email!");
+      } else {
+        alert("Failed to resend OTP");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error while resending OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden py-12 mx-10">
       <div className="relative bg-white/10 backdrop-blur-3xl border border-white/50 px-6 pt-10 pb-9 shadow-xl mx-auto w-full max-w-lg rounded-2xl">
@@ -115,7 +158,7 @@ export const OtpScreen = () => {
                       <input
                         ref={(el) => (inputRefs.current[index] = el!)}
                         className="text-white w-full h-full flex flex-col items-center justify-center text-center px-5 outline-none rounded-xl border border-gray-200 text-lg bg-white/10 ring-purple-500"
-                        type="text"
+                        type="number"
                         maxLength={1}
                         onChange={(e) =>
                           handleInputChange(index, e.target.value)
@@ -153,14 +196,17 @@ export const OtpScreen = () => {
 
                   <div className="flex flex-row items-center justify-center text-center text-sm font-medium space-x-1 text-white">
                     <p>Didn't receive code?</p>{" "}
-                    <a
+                    <button
                       className="flex flex-row items-center text-purple-500"
-                      href="http://"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      onClick={handleResendOtp}
+                      disabled={resendDisabled}
                     >
-                      Resend
-                    </a>
+                      {resendDisabled ? (
+                        <span>{`Resend in ${timer}s`}</span>
+                      ) : (
+                        "Resend"
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>

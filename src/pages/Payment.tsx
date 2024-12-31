@@ -3,7 +3,6 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 import Navbar from "../components/NavBar";
-
 interface Payment {
   razorpay_payment_id: string;
   razorpay_order_id: string;
@@ -47,9 +46,8 @@ export const PaymentPage: React.FC = () => {
   }, [event_id]);
 
   const handlePaymentSuccess = async (payment: Payment) => {
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
-      payment;
-
+    const paymentData = payment;
+    console.log("data:", paymentData);
     setLoading(true);
 
     try {
@@ -57,9 +55,9 @@ export const PaymentPage: React.FC = () => {
       const { data } = await axios.post(
         `${BACKEND_URL}/api/v1/payment/verify`,
         {
-          razorpay_payment_id,
-          razorpay_order_id,
-          razorpay_signature,
+          razorpay_payment_id: paymentData.razorpay_payment_id,
+          razorpay_order_id: paymentData.razorpay_order_id,
+          razorpay_signature: paymentData.razorpay_signature,
           email,
           event_id,
         }

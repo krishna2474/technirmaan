@@ -40,7 +40,9 @@ const GenerateQrPage = () => {
         if (response.data.qrCodeBase64) {
           setQrCode(response.data.qrCodeBase64); // Assuming qrCodeBase64 contains the Base64-encoded QR code image
         } else {
-          setError("Failed to generate QR code. Please try again.");
+          setError(
+            "Failed to generate QR code. Please try again.\nIf the error persists, please contact the support team at\ntechnirmaan25@gmail.com"
+          );
         }
       } catch (err) {
         console.error(err);
@@ -79,7 +81,7 @@ const GenerateQrPage = () => {
               {loading ? (
                 <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6"></div>
               ) : error ? (
-                <p className="text-red-500">{error}</p>
+                <p className="text-red-500 text-center">{error}</p>
               ) : qrCode ? (
                 <div className="flex flex-col items-center">
                   <img
