@@ -65,7 +65,13 @@ export const PaymentPage: React.FC = () => {
 
       if (data.success) {
         setPaymentStatus("Payment captured successfully!");
-        navigate(`/generate-qr?email=${email}&event_id=${event_id}`);
+        const newRegistration = await axios.post(
+          `${BACKEND_URL}/api/v1/register/new?email=${email}&event_id=${event_id}`
+        );
+        if (newRegistration.data.error) {
+          setPaymentStatus("Error registering for event. Please try again.");
+          return;
+        } else navigate(`/generate-qr?email=${email}&event_id=${event_id}`);
       } else {
         setPaymentStatus("Payment verification failed. Please try again.");
       }
@@ -120,7 +126,7 @@ export const PaymentPage: React.FC = () => {
           description: "Payment for Event",
           order_id: orderId,
           handler: handlePaymentSuccess,
-          theme: { color: "#F37254" },
+          theme: { color: "#b74ab2" },
           prefill: { email },
           modal: {
             ondismiss: () => console.log("Payment modal dismissed"),

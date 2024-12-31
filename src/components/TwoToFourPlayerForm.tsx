@@ -28,11 +28,16 @@ export const TwoToFourPlayerForm = () => {
         email: data[`email${i}`],
         phone: data[`phone${i}`],
         cls: data[`class${i}`],
-        department: data[`department${i}`],
-        college: data[`college${i}`],
+        department:
+          data[`department${i}`] === "Other"
+            ? data[`departmentCustom${i}`]
+            : data[`department${i}`],
+        college:
+          data[`college${i}`] === "Other"
+            ? data[`collegeCustom${i}`]
+            : data[`college${i}`],
       });
     }
-    console.log(playersData);
 
     setLoading(true);
 
@@ -44,16 +49,17 @@ export const TwoToFourPlayerForm = () => {
           event: eventId,
         }
       );
-
-      console.log(res.data);
-
-      //   // reset();
-
-      navigate(
-        `/verify?email=${encodeURIComponent(
-          data.email1
-        )}&event=${encodeURIComponent(eventId + "")}`
-      );
+      console.log("Response:", res);
+      if (res.status === 200) {
+        navigate(
+          `/verify?email=${encodeURIComponent(
+            data.email1
+          )}&event=${encodeURIComponent(eventId + "")}`
+        );
+      } else {
+        alert("Error sending OTP");
+      }
+      console.log("Players Data:", playersData);
     } catch (error: any) {
       alert(error.response.data.error);
       console.error("Error:", error);
@@ -65,51 +71,6 @@ export const TwoToFourPlayerForm = () => {
   const handleCheckboxChange = () => {
     setIsSameForLastPlayers((prev) => !prev);
   };
-
-  // Watch the first player's class, department, and college fields
-  const watchedClass1 = watch("class1");
-  const watchedPhone1 = watch("phone1");
-  const watchedDepartment1 = watch("department1");
-  const watchedCollege1 = watch("college1");
-
-  // Automatically update other players' fields if checkbox is checked
-  useEffect(() => {
-    // Watch the first player's class, department, and college fields
-    setValue("phone2", watchedPhone1);
-    if (numPlayers >= 3) {
-      setValue("phone3", watchedPhone1);
-    }
-    if (numPlayers >= 4) {
-      setValue("phone4", watchedPhone1);
-    }
-
-    if (isSameForLastPlayers) {
-      // Sync the class, department, and college for players 2 to 4 based on the selected number of players
-      if (numPlayers >= 2) {
-        setValue("class2", watchedClass1);
-        setValue("department2", watchedDepartment1);
-        setValue("college2", watchedCollege1);
-      }
-      if (numPlayers >= 3) {
-        setValue("class3", watchedClass1);
-        setValue("department3", watchedDepartment1);
-        setValue("college3", watchedCollege1);
-      }
-      if (numPlayers === 4) {
-        setValue("class4", watchedClass1);
-        setValue("department4", watchedDepartment1);
-        setValue("college4", watchedCollege1);
-      }
-    }
-  }, [
-    watchedPhone1,
-    watchedClass1,
-    watchedDepartment1,
-    watchedCollege1,
-    isSameForLastPlayers,
-    numPlayers, // Depend on numPlayers to ensure this logic is reevaluated
-    setValue,
-  ]);
 
   return (
     <div className="relative flex flex-col items-center w-full">
@@ -192,27 +153,25 @@ export const TwoToFourPlayerForm = () => {
                 )}
 
                 {/* Player Phone Input */}
-                {playerIndex === 1 && (
-                  <input
-                    autoComplete="off"
-                    {...register(`phone${playerIndex}`, {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^[0-9]{10}$/,
-                        message: "Please enter a valid 10-digit phone number",
-                      },
-                    })}
-                    type="number"
-                    name={`phone${playerIndex}`}
-                    id={`phone${playerIndex}`}
-                    className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
-                      errors[`phone${playerIndex}`]
-                        ? "focus:border-red-600 focus:ring-red-600"
-                        : ""
-                    } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                    placeholder="Contact"
-                  />
-                )}
+                <input
+                  autoComplete="off"
+                  {...register(`phone${playerIndex}`, {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Please enter a valid 10-digit phone number",
+                    },
+                  })}
+                  type="number"
+                  name={`phone${playerIndex}`}
+                  id={`phone${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`phone${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Phone Number"
+                />
                 {errors[`phone${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`phone${playerIndex}`]?.message + ""}
@@ -242,12 +201,10 @@ export const TwoToFourPlayerForm = () => {
                 )}
 
                 {/* Player Department Input */}
-                <input
-                  autoComplete="off"
+                <select
                   {...register(`department${playerIndex}`, {
                     required: "Department is required",
                   })}
-                  type="text"
                   name={`department${playerIndex}`}
                   id={`department${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
@@ -255,21 +212,34 @@ export const TwoToFourPlayerForm = () => {
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="Department"
-                />
+                >
+                  <option value="">Select Department</option>
+                  <option value="IT">IT</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`department${playerIndex}`]?.message + ""}
                   </p>
                 )}
+                {/* Custom Department */}
+                {watch(`department${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`departmentCustom${playerIndex}`)}
+                    type="text"
+                    name={`departmentCustom${playerIndex}`}
+                    id={`departmentCustom${playerIndex}`}
+                    className="text-white bg-transparent  border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter Department"
+                  />
+                )}
 
                 {/* Player College Input */}
-                <input
-                  autoComplete="off"
+                <select
                   {...register(`college${playerIndex}`, {
                     required: "College is required",
                   })}
-                  type="text"
                   name={`college${playerIndex}`}
                   id={`college${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
@@ -277,31 +247,44 @@ export const TwoToFourPlayerForm = () => {
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="College"
-                />
+                >
+                  <option value="">Select College</option>
+                  <option value="CHM">Smt. CHM College</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`college${playerIndex}`]?.message + ""}
                   </p>
                 )}
+                {/* Custom College */}
+                {watch(`college${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`collegeCustom${playerIndex}`)}
+                    type="text"
+                    name={`collegeCustom${playerIndex}`}
+                    id={`collegeCustom${playerIndex}`}
+                    className="text-white bg-transparent border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter College"
+                  />
+                )}
               </div>
             );
           })}
 
-          {/* Checkbox for automatic filling */}
-          <div className="flex items-center justify-start">
-            <input
-              type="checkbox"
-              id="sameForLastPlayers"
-              checked={isSameForLastPlayers}
-              onChange={handleCheckboxChange}
-              className="text-white focus:ring-purple-500"
-            />
-            <label
-              htmlFor="sameForLastPlayers"
-              className="text-white text-sm ml-2"
-            >
-              All players have the same class, department, and college
+          {/* Same for Last Players Checkbox */}
+          <div>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={isSameForLastPlayers}
+                onChange={handleCheckboxChange}
+                className="w-4 h-4"
+              />
+              <span className="text-white text-sm">
+                Same details for last players
+              </span>
             </label>
           </div>
 

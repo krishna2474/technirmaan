@@ -230,7 +230,7 @@ export const OnePlayerForm = () => {
               }`}
             >
               <option value="">Select College</option>
-              <option value="CHM College">CHM College</option>
+              <option value="CHM">Smt. CHM College</option>
               <option value="Other">Other</option>
             </select>
             {collegeInputVisible && (

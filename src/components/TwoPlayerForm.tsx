@@ -2,7 +2,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { BACKEND_URL } from "../config";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { useParams, useNavigate } from "react-router-dom";
 
 export const TwoPlayerForm = () => {
   const {
@@ -13,33 +13,34 @@ export const TwoPlayerForm = () => {
     watch,
   } = useForm({ mode: "onChange" });
 
-  const [loading, setLoading] = useState(false); // State to manage the loader
-  const numPlayers = 2; // State to handle number of players (default is 2)
+  const [loading, setLoading] = useState(false);
+  const numPlayers = 2;
   const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
-  const { eventId } = useParams(); // Extract eventId from the URL path
-  const navigate = useNavigate(); // Initialize the navigate function
+  const { eventId } = useParams();
+  const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
-    setLoading(true); // Start loading state
+    setLoading(true);
 
     try {
       const playersData = [];
       for (let i = 1; i <= numPlayers; i++) {
         playersData.push({
-          name: data[`name${i}`], // Dynamically access name based on player index
+          name: data[`name${i}`],
           email: data[`email${i}`],
-          phone: data[`phone${i}`], // Dynamically access phone based on player index
-          cls: data[`class${i}`], // Dynamically access class based on player index
+          phone: data[`phone${i}`],
+          cls: data[`class${i}`],
           department:
             data[`department${i}`] === "Other"
-              ? data.departmentCustom
-              : data[`department${i}`], // Handle 'Other' case
+              ? data[`departmentCustom${i}`]
+              : data[`department${i}`],
           college:
             data[`college${i}`] === "Other"
-              ? data.collegeCustom
-              : data[`college${i}`], // Handle 'Other' case
+              ? data[`collegeCustom${i}`]
+              : data[`college${i}`],
         });
       }
+      // console.log("playersData", playersData);
 
       const res = await axios.post(
         `${BACKEND_URL}/api/v1/verify/send-otp?type=2`,
@@ -49,21 +50,19 @@ export const TwoPlayerForm = () => {
         }
       );
 
-      console.log(res.data);
-      if (res.status === 200)
-        // After successful OTP sending, redirect to the /verify route
+      if (res.status === 200) {
         navigate(
           `/verify?email=${encodeURIComponent(
             data.email1
           )}&event=${encodeURIComponent(eventId + "")}`
         );
-      // Redirect to the /verify route with email state
-      else alert("Error sending OTP");
+      } else {
+        alert("Error sending OTP");
+      }
     } catch (error) {
       console.error("Error:", error);
-      // Handle error here (optional)
     } finally {
-      setLoading(false); // Stop loading state
+      setLoading(false);
     }
   });
 
@@ -71,19 +70,13 @@ export const TwoPlayerForm = () => {
     setIsSameForLastPlayers((prev) => !prev);
   };
 
-  // Watch the first player's class, department, and college fields
   const watchedClass1 = watch("class1");
-  const watchedPhone1 = watch("phone1");
   const watchedDepartment1 = watch("department1");
   const watchedCollege1 = watch("college1");
 
-  // Automatically update other players' fields if checkbox is checked
   useEffect(() => {
-    setValue("phone2", watchedPhone1);
     if (isSameForLastPlayers) {
-      // Sync the class, department, and college for players 2 to 4 based on the selected number of players
       if (numPlayers >= 2) {
-        setValue("phone2", watchedPhone1);
         setValue("class2", watchedClass1);
         setValue("department2", watchedDepartment1);
         setValue("college2", watchedCollege1);
@@ -94,7 +87,7 @@ export const TwoPlayerForm = () => {
     watchedDepartment1,
     watchedCollege1,
     isSameForLastPlayers,
-    numPlayers, // Depend on numPlayers to ensure this logic is reevaluated
+    numPlayers,
     setValue,
   ]);
 
@@ -163,27 +156,25 @@ export const TwoPlayerForm = () => {
                 )}
 
                 {/* Player Phone Input */}
-                {playerIndex === 1 && (
-                  <input
-                    autoComplete="off"
-                    {...register(`phone${playerIndex}`, {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^[0-9]{10}$/,
-                        message: "Please enter a valid 10-digit phone number",
-                      },
-                    })}
-                    type="number"
-                    name={`phone${playerIndex}`}
-                    id={`phone${playerIndex}`}
-                    className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
-                      errors[`phone${playerIndex}`]
-                        ? "focus:border-red-600 focus:ring-red-600"
-                        : ""
-                    } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                    placeholder="Contact"
-                  />
-                )}
+                <input
+                  autoComplete="off"
+                  {...register(`phone${playerIndex}`, {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Please enter a valid 10-digit phone number",
+                    },
+                  })}
+                  type="number"
+                  name={`phone${playerIndex}`}
+                  id={`phone${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`phone${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Contact"
+                />
                 {errors[`phone${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`phone${playerIndex}`]?.message + ""}
@@ -212,48 +203,68 @@ export const TwoPlayerForm = () => {
                   </p>
                 )}
 
-                {/* Player Department Input */}
-                <input
-                  autoComplete="off"
+                {/* Player Department Dropdown */}
+                <select
                   {...register(`department${playerIndex}`, {
                     required: "Department is required",
                   })}
-                  type="text"
-                  name={`department${playerIndex}`}
-                  id={`department${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
                     errors[`department${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="Department"
-                />
+                >
+                  <option value="">Select Department</option>
+                  <option value="IT">IT</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`department${playerIndex}`]?.message + ""}
                   </p>
                 )}
+                {watch(`department${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`departmentCustom${playerIndex}`)}
+                    type="text"
+                    name={`departmentCustom${playerIndex}`}
+                    id={`departmentCustom${playerIndex}`}
+                    className="text-white bg-transparent  border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter Department"
+                  />
+                )}
 
-                {/* Player College Input */}
-                <input
-                  autoComplete="off"
+                {/* Player College Dropdown */}
+                <select
                   {...register(`college${playerIndex}`, {
                     required: "College is required",
                   })}
-                  type="text"
-                  name={`college${playerIndex}`}
-                  id={`college${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
                     errors[`college${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="College"
-                />
+                >
+                  <option value="">Select College</option>
+                  <option value="CHM">Smt. CHM College</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`college${playerIndex}`]?.message + ""}
                   </p>
+                )}
+                {watch(`college${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`collegeCustom${playerIndex}`)}
+                    type="text"
+                    name={`collegeCustom${playerIndex}`}
+                    id={`collegeCustom${playerIndex}`}
+                    className="text-white bg-transparent border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter College"
+                  />
                 )}
               </div>
             );

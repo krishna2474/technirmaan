@@ -94,8 +94,18 @@ export const OtpScreen = () => {
 
       if (response.data.success) {
         alert("Account Verified");
-        // nav(`/generate-qr?email=${email}&event_id=${event_id}`);
-        nav(`/payment?email=${email}&event_id=${event_id}`);
+        const resp = await axios.get(`${BACKEND_URL}/api/v1/user/${email}`);
+        if (resp.data.department === "IT" && resp.data.college === "CHM") {
+          const newRegistration = await axios.post(
+            `${BACKEND_URL}/api/v1/register/new?email=${email}&event_id=${event_id}`
+          );
+          if (newRegistration.data.error) {
+            return;
+          }
+          nav(`/generate-qr?email=${email}&event_id=${event_id}`);
+        } else {
+          nav(`/payment?email=${email}&event_id=${event_id}`);
+        }
       } else {
         alert(response.data.error || "Failed to verify OTP");
       }
