@@ -32,6 +32,7 @@ export const TwoToFourPlayerForm = () => {
         college: data[`college${i}`],
       });
     }
+    console.log(playersData);
 
     setLoading(true);
 
@@ -46,7 +47,7 @@ export const TwoToFourPlayerForm = () => {
 
       console.log(res.data);
 
-      // reset();
+      //   // reset();
 
       navigate(
         `/verify?email=${encodeURIComponent(
