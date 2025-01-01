@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
 export const FourPlayerForm = () => {
-  alert(
-    "Ensure all details are valid as they will be printed on the Certificate"
-  );
+  useEffect(() => {
+    alert(
+      "Ensure all details are valid as they will be printed on the Certificate"
+    );
+  }, []);
   const {
     register,
     handleSubmit,

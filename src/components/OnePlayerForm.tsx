@@ -1,13 +1,15 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { BACKEND_URL } from "../config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export const OnePlayerForm = () => {
-  alert(
-    "Ensure all details are valid as they will be printed on the Certificate"
-  );
+  useEffect(() => {
+    alert(
+      "Ensure all details are valid as they will be printed on the Certificate"
+    );
+  }, []);
   const {
     register,
     handleSubmit,
