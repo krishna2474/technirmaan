@@ -3,6 +3,8 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 import Navbar from "../components/NavBar";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const GenerateQrPage = () => {
   const location = useLocation();
@@ -14,6 +16,7 @@ const GenerateQrPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [eventName, setEventName] = useState("");
+
   useEffect(() => {
     async function getEvent() {
       try {
@@ -27,6 +30,7 @@ const GenerateQrPage = () => {
     }
     getEvent();
   }, []);
+
   useEffect(() => {
     const generateQrCode = async () => {
       try {
@@ -79,7 +83,23 @@ const GenerateQrPage = () => {
 
             <div className="flex justify-center items-center text-white">
               {loading ? (
-                <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6"></div>
+                <div className="flex flex-col items-center">
+                  <Skeleton
+                    width={256}
+                    height={256}
+                    borderRadius="8px"
+                    baseColor="#2d3748" // Change to your preferred base color
+                    highlightColor="#4a5568" // Change to your preferred highlight color
+                  />
+                  <Skeleton
+                    width={150}
+                    height={40}
+                    borderRadius="4px"
+                    className="mt-4"
+                    baseColor="#2d3748" // Same base color
+                    highlightColor="#4a5568" // Same highlight color
+                  />
+                </div>
               ) : error ? (
                 <p className="text-red-500 text-center">{error}</p>
               ) : qrCode ? (

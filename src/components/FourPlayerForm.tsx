@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,14 +8,12 @@ export const FourPlayerForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    setValue,
     watch,
+    formState: { errors },
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false);
   const numPlayers = 4;
-  const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams();
   const navigate = useNavigate();
 
@@ -28,12 +26,19 @@ export const FourPlayerForm = () => {
         email: data[`email${i}`],
         phone: data[`phone${i}`],
         cls: data[`class${i}`],
-        department: data[`department${i}`],
-        college: data[`college${i}`],
+        department:
+          data[`department${i}`] === "Other"
+            ? data[`departmentCustom${i}`]
+            : data[`department${i}`],
+        college:
+          data[`college${i}`] === "Other"
+            ? data[`collegeCustom${i}`]
+            : data[`college${i}`],
       });
     }
 
     setLoading(true);
+    // console.log(playersData);
 
     try {
       const res = await axios.post(
@@ -43,11 +48,8 @@ export const FourPlayerForm = () => {
           event: eventId,
         }
       );
-
       console.log(res.data);
-
       // reset();
-
       navigate(
         `/verify?email=${encodeURIComponent(
           data.email1
@@ -59,61 +61,6 @@ export const FourPlayerForm = () => {
       setLoading(false);
     }
   });
-
-  const handleCheckboxChange = () => {
-    setIsSameForLastPlayers((prev) => !prev);
-  };
-
-  // Watch the first player's class, department, and college fields
-  const watchedClass1 = watch("class1");
-  const watchedPhone1 = watch("phone1");
-  const watchedDepartment1 = watch("department1");
-  const watchedCollege1 = watch("college1");
-
-  // Automatically update other players' fields if checkbox is checked
-  useEffect(() => {
-    if (isSameForLastPlayers) {
-      setValue("phone2", watchedPhone1);
-      setValue("phone3", watchedPhone1);
-      setValue("phone4", watchedPhone1);
-
-      setValue("class2", watchedClass1);
-      setValue("class3", watchedClass1);
-      setValue("class4", watchedClass1);
-
-      setValue("department2", watchedDepartment1);
-      setValue("department3", watchedDepartment1);
-      setValue("department4", watchedDepartment1);
-
-      setValue("college2", watchedCollege1);
-      setValue("college3", watchedCollege1);
-      setValue("college4", watchedCollege1);
-    } else {
-      // Reset fields for other players when checkbox is unchecked
-      setValue("phone2", "");
-      setValue("phone3", "");
-      setValue("phone4", "");
-
-      setValue("class2", "");
-      setValue("class3", "");
-      setValue("class4", "");
-
-      setValue("department2", "");
-      setValue("department3", "");
-      setValue("department4", "");
-
-      setValue("college2", "");
-      setValue("college3", "");
-      setValue("college4", "");
-    }
-  }, [
-    watchedClass1,
-    watchedDepartment1,
-    watchedCollege1,
-    watchedPhone1,
-    isSameForLastPlayers,
-    setValue,
-  ]);
 
   return (
     <div className="relative flex flex-col items-center w-full">
@@ -180,27 +127,27 @@ export const FourPlayerForm = () => {
                 )}
 
                 {/* Player Phone Input */}
-                {playerIndex === 1 && (
-                  <input
-                    autoComplete="off"
-                    {...register(`phone${playerIndex}`, {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^[0-9]{10}$/,
-                        message: "Please enter a valid 10-digit phone number",
-                      },
-                    })}
-                    type="number"
-                    name={`phone${playerIndex}`}
-                    id={`phone${playerIndex}`}
-                    className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
-                      errors[`phone${playerIndex}`]
-                        ? "focus:border-red-600 focus:ring-red-600"
-                        : ""
-                    } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                    placeholder="Contact"
-                  />
-                )}
+
+                <input
+                  autoComplete="off"
+                  {...register(`phone${playerIndex}`, {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10}$/,
+                      message: "Please enter a valid 10-digit phone number",
+                    },
+                  })}
+                  type="number"
+                  name={`phone${playerIndex}`}
+                  id={`phone${playerIndex}`}
+                  className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+                    errors[`phone${playerIndex}`]
+                      ? "focus:border-red-600 focus:ring-red-600"
+                      : ""
+                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  placeholder="Contact"
+                />
+
                 {errors[`phone${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`phone${playerIndex}`]?.message + ""}
@@ -229,13 +176,10 @@ export const FourPlayerForm = () => {
                   </p>
                 )}
 
-                {/* Player Department Input */}
-                <input
-                  autoComplete="off"
+                <select
                   {...register(`department${playerIndex}`, {
                     required: "Department is required",
                   })}
-                  type="text"
                   name={`department${playerIndex}`}
                   id={`department${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
@@ -243,21 +187,34 @@ export const FourPlayerForm = () => {
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="Department"
-                />
+                >
+                  <option value="">Select Department</option>
+                  <option value="IT">IT</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`department${playerIndex}`]?.message + ""}
                   </p>
                 )}
+                {/* Custom Department */}
+                {watch(`department${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`departmentCustom${playerIndex}`)}
+                    type="text"
+                    name={`departmentCustom${playerIndex}`}
+                    id={`departmentCustom${playerIndex}`}
+                    className="text-white bg-transparent  border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter Department"
+                  />
+                )}
 
                 {/* Player College Input */}
-                <input
-                  autoComplete="off"
+                <select
                   {...register(`college${playerIndex}`, {
                     required: "College is required",
                   })}
-                  type="text"
                   name={`college${playerIndex}`}
                   id={`college${playerIndex}`}
                   className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
@@ -265,33 +222,31 @@ export const FourPlayerForm = () => {
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
-                  placeholder="College"
-                />
+                >
+                  <option value="">Select College</option>
+                  <option value="CHM">Smt. CHM College</option>
+                  <option value="Other">Other</option>
+                </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`college${playerIndex}`]?.message + ""}
                   </p>
                 )}
+                {/* Custom College */}
+                {watch(`college${playerIndex}`) === "Other" && (
+                  <input
+                    autoComplete="off"
+                    {...register(`collegeCustom${playerIndex}`)}
+                    type="text"
+                    name={`collegeCustom${playerIndex}`}
+                    id={`collegeCustom${playerIndex}`}
+                    className="text-white bg-transparent border border-stroke py-[10px] outline-none transition b text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500"
+                    placeholder="Enter College"
+                  />
+                )}
               </div>
             );
           })}
-
-          {/* Checkbox for automatic filling */}
-          <div className="flex items-center justify-start">
-            <input
-              type="checkbox"
-              id="sameForLastPlayers"
-              checked={isSameForLastPlayers}
-              onChange={handleCheckboxChange}
-              className="text-white focus:ring-purple-500"
-            />
-            <label
-              htmlFor="sameForLastPlayers"
-              className="text-white text-sm ml-2"
-            >
-              All players have the same class, department, and college
-            </label>
-          </div>
 
           {/* Submit Button */}
           <div className="flex justify-center">

@@ -15,6 +15,7 @@ const QrScanner = () => {
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false); // New loading state
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const lastDecodedRef = useRef<number>(0); // Track the last decode time for debouncing
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -51,9 +52,15 @@ const QrScanner = () => {
           null,
           videoRef.current,
           (result) => {
-            if (result) {
-              validateEvent(result.getText());
-              stopScanning();
+            // Add debouncing logic to avoid excessive decoding attempts
+            const currentTime = Date.now();
+            if (currentTime - lastDecodedRef.current > 200) {
+              // 200 ms debounce
+              if (result) {
+                lastDecodedRef.current = currentTime; // Update the last decoded timestamp
+                validateEvent(result.getText());
+                stopScanning();
+              }
             }
           }
         );
@@ -330,7 +337,7 @@ const QrScanner = () => {
               className="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg mt-4 w-full"
               disabled={loading} // Disable the button when loading
             >
-              {loading ? "Submitting..." : "Mark Attendance"}
+              {loading ? "Submitting..." : "Submit Team Attendance"}
             </button>
 
             <button

@@ -32,7 +32,7 @@ const Registration = () => {
   return (
     <>
       <Navbar />
-      <h1 className="text-center font-extrabold text-xl underline mb-4 text-white">
+      <h1 className="text-center font-extrabold text-xl underline mb-1 text-white">
         {loading ? (
           <div className="flex justify-center">Please Wait...</div>
         ) : (
@@ -40,6 +40,9 @@ const Registration = () => {
         )}
       </h1>{" "}
       {/* Add margin-top if needed */}
+      <h5 className="text-center font-bold text-md underline mb-4 text-white">
+        Please enter valid details, You will recieve otp on email and Mobile
+      </h5>
       <div className="flex justify-center h-screen  w-full">
         {formsMap[eventType] || null}
       </div>
