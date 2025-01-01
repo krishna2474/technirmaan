@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-export const PaymentPage: React.FC = () => {
+const PaymentPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [paymentStatus, setPaymentStatus] = useState("");
@@ -182,3 +182,5 @@ export const PaymentPage: React.FC = () => {
     </>
   );
 };
+
+export default PaymentPage;

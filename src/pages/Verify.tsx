@@ -1,10 +1,11 @@
 import Navbar from "../components/NavBar";
 import { OtpScreen } from "../components/OtpScreen";
 
-export const Verify = () => {
+const Verify = () => {
   return (
     <>
       <Navbar /> <OtpScreen />
     </>
   );
 };
+export default Verify;

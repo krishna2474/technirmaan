@@ -1,6 +1,6 @@
 import { Card } from "../components/Card";
 import Navbar from "../components/NavBar";
-export const Landing = () => {
+const Landing = () => {
   return (
     <>
       <Navbar />
@@ -63,3 +63,5 @@ export const Landing = () => {
     </>
   );
 };
+
+export default Landing;

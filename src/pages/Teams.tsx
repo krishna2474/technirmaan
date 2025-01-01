@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
+import exp from "constants";
 
 interface Member {
   user_id: string;
@@ -22,7 +23,7 @@ interface Team {
   members: Member[];
 }
 
-export const Teams = () => {
+const Teams = () => {
   const [events, setEvents] = useState<any[]>([]); // List of events
   const [selectedEvent, setSelectedEvent] = useState<string>(""); // Currently selected event
   const [participants, setParticipants] = useState<(Team | Member)[]>([]); // List of teams or members
@@ -194,3 +195,5 @@ export const Teams = () => {
     </div>
   );
 };
+
+export default Teams;

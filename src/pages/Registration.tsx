@@ -8,7 +8,7 @@ import { TwoPlayerForm } from "../components/TwoPlayerForm";
 import { TwoToFourPlayerForm } from "../components/TwoToFourPlayerForm";
 import { FourPlayerForm } from "../components/FourPlayerForm";
 
-export const Registration = () => {
+const Registration = () => {
   const [loading, setLoading] = useState(true);
   const [eventName, setEventName] = useState("");
   const [eventType, setEventType] = useState("");
@@ -46,3 +46,4 @@ export const Registration = () => {
     </>
   );
 };
+export default Registration;
