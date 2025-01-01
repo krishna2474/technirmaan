@@ -5,6 +5,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
 export const TwoToFourPlayerForm = () => {
+  alert(
+    "Ensure all details are valid as they will be printed on the Certificate"
+  );
   const {
     register,
     handleSubmit,
@@ -18,6 +21,8 @@ export const TwoToFourPlayerForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
+    setLoading(true);
+
     // Format player data into an array of objects
     const playersData = [];
     for (let i = 1; i <= numPlayers; i++) {
@@ -36,8 +41,6 @@ export const TwoToFourPlayerForm = () => {
             : data[`college${i}`],
       });
     }
-
-    setLoading(true);
 
     try {
       const res = await axios.post(
@@ -81,11 +84,17 @@ export const TwoToFourPlayerForm = () => {
             <select
               value={numPlayers}
               onChange={(e) => setNumPlayers(Number(e.target.value))}
-              className="w-full bg-transparent text-sm text-white border rounded-md border-stroke outline-none p-2.5 focus:ring-customPurple focus:border-purple-500"
+              className="text-white w-full bg-transparent text-sm  border rounded-md border-stroke outline-none p-2.5 focus:ring-customPurple focus:border-purple-500"
             >
-              <option value={2}>2 Players</option>
-              <option value={3}>3 Players</option>
-              <option value={4}>4 Players</option>
+              <option className="text-black" value={2}>
+                2 Players
+              </option>
+              <option className="text-black" value={3}>
+                3 Players
+              </option>
+              <option className="text-black" value={4}>
+                4 Players
+              </option>
             </select>
           </div>
 
@@ -207,9 +216,15 @@ export const TwoToFourPlayerForm = () => {
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select Department</option>
-                  <option value="IT">IT</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select Department
+                  </option>
+                  <option className="text-black" value="IT">
+                    IT
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
@@ -242,9 +257,15 @@ export const TwoToFourPlayerForm = () => {
                       : ""
                   } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select College</option>
-                  <option value="CHM">Smt. CHM College</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select College
+                  </option>
+                  <option className="text-black" value="CHM">
+                    Smt. CHM College
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">

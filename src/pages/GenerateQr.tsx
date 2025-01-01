@@ -16,6 +16,19 @@ const GenerateQrPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [eventName, setEventName] = useState("");
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const whatsappLinks: Record<string, string> = {
+    "Pixel Perfection": "https://chat.whatsapp.com/IHL7H4mqhS4HvnoiKMjSVb",
+    "BGMI TDM Showdown": "https://chat.whatsapp.com/BXG8ahezoPbFxptly38ZyR",
+    "Clash of Thoughts": "https://chat.whatsapp.com/Jxqk7dQsDAZ2gR6GzTr2bc",
+    "Guess it right": "https://chat.whatsapp.com/JJ8sBD8Pdkb6ZeV4VvsHX3",
+    "Brand Hunt": "https://chat.whatsapp.com/BzCjfLV2jOT97uoG2dC9WO",
+    "Code In the Dark": "https://chat.whatsapp.com/FWVZt7TUAbF6kdpDsxCG5w",
+    "Brain Battle": "https://chat.whatsapp.com/ISmlGSm68QB9q26dKGGKw5",
+    "Bug Busters": "https://chat.whatsapp.com/HTbvSM1aNR1IdRYXZ4mnO6",
+    "UI Showdown": "https://chat.whatsapp.com/HRbevOUM1ucEjp86RklC5c",
+  };
 
   useEffect(() => {
     async function getEvent() {
@@ -26,10 +39,12 @@ const GenerateQrPage = () => {
         } else {
           setError("Failed to fetch event details");
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     }
     getEvent();
-  }, []);
+  }, [event_id]);
 
   useEffect(() => {
     const generateQrCode = async () => {
@@ -43,6 +58,7 @@ const GenerateQrPage = () => {
 
         if (response.data.qrCodeBase64) {
           setQrCode(response.data.qrCodeBase64); // Assuming qrCodeBase64 contains the Base64-encoded QR code image
+          setShowModal(true); // Show modal after fetching data
         } else {
           setError(
             "Failed to generate QR code. Please try again.\nIf the error persists, please contact the support team at\ntechnirmaan25@gmail.com"
@@ -122,6 +138,48 @@ const GenerateQrPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal */}
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-40">
+            <div className="bg-black p-6 rounded-lg shadow-lg max-w-[90%] sm:max-w-[600px] w-full relative">
+              <h2 className="text-green-500 font-semibold text-xl mb-4">
+                WhatsApp Group Link
+              </h2>
+              <div className="max-h-[60vh] overflow-auto">
+                <ul className="text-white space-y-2">
+                  <li className="font-semibold">
+                    Join the Whatsapp group to stay updated with the event
+                    details
+                  </li>
+                  <li>
+                    <span className="font-semibold text-green-300">
+                      Group Link:{" "}
+                    </span>
+                    <a
+                      href={whatsappLinks[eventName]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 underline break-words"
+                    >
+                      {whatsappLinks[eventName]
+                        ? "Join WhatsApp Group"
+                        : "Link not available"}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              {/* Close Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-4 right-4 text-gray-400 hover:text-white bg-transparent border-none text-lg"
+              >
+                &times;
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

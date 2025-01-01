@@ -5,6 +5,9 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export const OnePlayerForm = () => {
+  alert(
+    "Ensure all details are valid as they will be printed on the Certificate"
+  );
   const {
     register,
     handleSubmit,
@@ -32,8 +35,13 @@ export const OnePlayerForm = () => {
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    if (!isValid) return;
-
+    if (!isValid) {
+      alert("Please fill all the fields correctly.");
+      return;
+    }
+    alert(
+      "Ensure all details are valid as they will be printed on the Certificate"
+    );
     setLoading(true);
 
     try {
@@ -188,15 +196,21 @@ export const OnePlayerForm = () => {
                 required: "Department is required.",
               })}
               onChange={handleDepartmentChange}
-              className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+              className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none p-1 transition b ${
                 errors["department"]
                   ? "focus:border-red-600 focus:ring-red-600"
                   : ""
               }`}
             >
-              <option value="">Select Department</option>
-              <option value="IT">IT</option>
-              <option value="Other">Other</option>
+              <option className="text-black" value="">
+                Select Department
+              </option>
+              <option className="text-black" value="IT">
+                IT
+              </option>
+              <option className="text-black" value="Other">
+                Other
+              </option>
             </select>
             {departmentInputVisible && (
               <input
@@ -224,15 +238,21 @@ export const OnePlayerForm = () => {
             <select
               {...register("college", { required: "College is required." })}
               onChange={handleCollegeChange}
-              className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
+              className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition p-1 b ${
                 errors["college"]
                   ? "focus:border-red-600 focus:ring-red-600"
                   : ""
               }`}
             >
-              <option value="">Select College</option>
-              <option value="CHM">Smt. CHM College</option>
-              <option value="Other">Other</option>
+              <option className="text-black" value="">
+                Select College
+              </option>
+              <option className="text-black" value="CHM">
+                Smt. CHM College
+              </option>
+              <option className="text-black" value="Other">
+                Other
+              </option>
             </select>
             {collegeInputVisible && (
               <input

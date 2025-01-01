@@ -5,6 +5,9 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export const TwoPlayerForm = () => {
+  alert(
+    "Ensure all details are valid as they will be printed on the Certificate"
+  );
   const {
     register,
     handleSubmit,
@@ -18,6 +21,9 @@ export const TwoPlayerForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
+    alert(
+      "Ensure all details are valid as they will be printed on the Certificate"
+    );
     setLoading(true);
 
     try {
@@ -185,11 +191,17 @@ export const TwoPlayerForm = () => {
                     errors[`department${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  } text-sm rounded-lg block w-full p-1 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select Department</option>
-                  <option value="IT">IT</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select Department
+                  </option>
+                  <option className="text-black" value="IT">
+                    IT
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
@@ -217,11 +229,17 @@ export const TwoPlayerForm = () => {
                     errors[`college${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  } text-sm rounded-lg block w-full p-1 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select College</option>
-                  <option value="CHM">Smt. CHM College</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select College
+                  </option>
+                  <option className="text-black" value="CHM">
+                    Smt. CHM College
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">

@@ -5,6 +5,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
 export const FourPlayerForm = () => {
+  alert(
+    "Ensure all details are valid as they will be printed on the Certificate"
+  );
   const {
     register,
     handleSubmit,
@@ -18,6 +21,7 @@ export const FourPlayerForm = () => {
   const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
+    setLoading(true);
     // Format player data into an array of objects
     const playersData = [];
     for (let i = 1; i <= numPlayers; i++) {
@@ -37,7 +41,6 @@ export const FourPlayerForm = () => {
       });
     }
 
-    setLoading(true);
     // console.log(playersData);
 
     try {
@@ -186,11 +189,17 @@ export const FourPlayerForm = () => {
                     errors[`department${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  } text-sm rounded-lg block w-full p-1 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select Department</option>
-                  <option value="IT">IT</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select Department
+                  </option>
+                  <option className="text-black" value="IT">
+                    IT
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`department${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
@@ -221,11 +230,17 @@ export const FourPlayerForm = () => {
                     errors[`college${playerIndex}`]
                       ? "focus:border-red-600 focus:ring-red-600"
                       : ""
-                  } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
+                  } text-sm rounded-lg block w-full p-1 focus:ring-customPurple focus:border-purple-500`}
                 >
-                  <option value="">Select College</option>
-                  <option value="CHM">Smt. CHM College</option>
-                  <option value="Other">Other</option>
+                  <option className="text-black" value="">
+                    Select College
+                  </option>
+                  <option className="text-black" value="CHM">
+                    Smt. CHM College
+                  </option>
+                  <option className="text-black" value="Other">
+                    Other
+                  </option>
                 </select>
                 {errors[`college${playerIndex}`] && (
                   <p className="text-red-500 text-sm mt-1">
