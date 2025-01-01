@@ -148,6 +148,7 @@ export const OnePlayerForm = () => {
                   message: "Phone number must be at least 10 digits.",
                 },
               })}
+              type="number"
               name="phone"
               id="phone"
               placeholder="+91 1234567890"
