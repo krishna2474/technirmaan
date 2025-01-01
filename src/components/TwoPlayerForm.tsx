@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { BACKEND_URL } from "../config";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export const TwoPlayerForm = () => {
@@ -9,13 +9,11 @@ export const TwoPlayerForm = () => {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
     watch,
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false);
   const numPlayers = 2;
-  const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams();
   const navigate = useNavigate();
 
@@ -65,31 +63,6 @@ export const TwoPlayerForm = () => {
       setLoading(false);
     }
   });
-
-  const handleCheckboxChange = () => {
-    setIsSameForLastPlayers((prev) => !prev);
-  };
-
-  const watchedClass1 = watch("class1");
-  const watchedDepartment1 = watch("department1");
-  const watchedCollege1 = watch("college1");
-
-  useEffect(() => {
-    if (isSameForLastPlayers) {
-      if (numPlayers >= 2) {
-        setValue("class2", watchedClass1);
-        setValue("department2", watchedDepartment1);
-        setValue("college2", watchedCollege1);
-      }
-    }
-  }, [
-    watchedClass1,
-    watchedDepartment1,
-    watchedCollege1,
-    isSameForLastPlayers,
-    numPlayers,
-    setValue,
-  ]);
 
   return (
     <div className="relative flex flex-col items-center w-full">
@@ -269,23 +242,6 @@ export const TwoPlayerForm = () => {
               </div>
             );
           })}
-
-          {/* Checkbox for automatic filling */}
-          <div className="flex items-center justify-start">
-            <input
-              type="checkbox"
-              id="sameForLastPlayers"
-              checked={isSameForLastPlayers}
-              onChange={handleCheckboxChange}
-              className="text-white focus:ring-purple-500"
-            />
-            <label
-              htmlFor="sameForLastPlayers"
-              className="text-white text-sm ml-2"
-            >
-              All players have the same class, department, and college
-            </label>
-          </div>
 
           {/* Submit Button */}
           <div className="flex justify-center">

@@ -14,7 +14,6 @@ export const TwoToFourPlayerForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [numPlayers, setNumPlayers] = useState(2);
-  const [isSameForLastPlayers, setIsSameForLastPlayers] = useState(false);
   const { eventId } = useParams();
   const navigate = useNavigate();
 
@@ -66,10 +65,6 @@ export const TwoToFourPlayerForm = () => {
       setLoading(false);
     }
   });
-
-  const handleCheckboxChange = () => {
-    setIsSameForLastPlayers((prev) => !prev);
-  };
 
   return (
     <div className="relative flex flex-col items-center w-full">
@@ -271,21 +266,6 @@ export const TwoToFourPlayerForm = () => {
               </div>
             );
           })}
-
-          {/* Same for Last Players Checkbox */}
-          <div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isSameForLastPlayers}
-                onChange={handleCheckboxChange}
-                className="w-4 h-4"
-              />
-              <span className="text-white text-sm">
-                Same details for last players
-              </span>
-            </label>
-          </div>
 
           {/* Submit Button */}
           <div className="flex justify-center">
