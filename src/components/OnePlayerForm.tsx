@@ -151,7 +151,7 @@ export const OnePlayerForm = () => {
               type="number"
               name="phone"
               id="phone"
-              placeholder="+91 1234567890"
+              placeholder="Contact"
               className={`text-white active:border-purple-500 w-full bg-transparent rounded-md border border-stroke py-[10px] outline-none transition b ${
                 errors["phone"] ? "focus:border-red-600 focus:ring-red-600" : ""
               } text-sm rounded-lg block w-full p-2.5 focus:ring-customPurple focus:border-purple-500`}
