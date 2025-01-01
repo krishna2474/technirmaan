@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import exp from "constants";
 
 interface Member {
   user_id: string;
