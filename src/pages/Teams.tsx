@@ -92,7 +92,63 @@ const Teams = () => {
 
   // Group the participants by team
   const groupedTeams = groupByTeam(participants);
+  const [password, setPassword] = useState<string>("");
+  const [accessGranted, setAccessGranted] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
+  const correctPassword = "technirmaan"; // Replace this with your desired password
+  useEffect(() => {
+    const storedAccess = localStorage.getItem("teamsAccess");
+    const storedTimestamp = localStorage.getItem("teamsAccessTimestamp");
+
+    if (storedAccess === "true" && storedTimestamp) {
+      const currentTime = Date.now();
+      const timestamp = parseInt(storedTimestamp, 10);
+
+      // Check if 10 minutes (600,000 ms) have passed
+      if (currentTime - timestamp < 600000) {
+        setAccessGranted(true);
+      } else {
+        localStorage.removeItem("teamsAccess");
+        localStorage.removeItem("teamsAccessTimestamp");
+      }
+    }
+  }, []);
+
+  const handlePasswordSubmit = () => {
+    if (password === correctPassword) {
+      setAccessGranted(true);
+      localStorage.setItem("teamsAccess", "true");
+      localStorage.setItem("teamsAccessTimestamp", Date.now().toString()); // Store current timestamp
+      setPasswordError(null);
+    } else {
+      setPasswordError("Incorrect password. Please try again.");
+    }
+  };
+
+  if (!accessGranted) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-white">
+        <h2 className="text-xl font-semibold mb-4 text-center">
+          Enter Password
+        </h2>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="p-2 mb-2 rounded-md border border-gray-300 text-black"
+          placeholder="Enter password"
+        />
+        <button
+          onClick={handlePasswordSubmit}
+          className="px-4 py-2 bg-green-500 text-white rounded-lg"
+        >
+          Submit
+        </button>
+        {passwordError && <p className="mt-2 text-red-500">{passwordError}</p>}
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col justify-center items-center text-white px-4 sm:px-6 md:px-8 lg:px-16">
       {/* Event Dropdown */}
