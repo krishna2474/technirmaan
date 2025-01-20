@@ -24,7 +24,7 @@ const GenerateQrPage = () => {
     "Clash of Thoughts": "https://chat.whatsapp.com/Jxqk7dQsDAZ2gR6GzTr2bc",
     "Guess it right": "https://chat.whatsapp.com/JJ8sBD8Pdkb6ZeV4VvsHX3",
     "Brand Hunt": "https://chat.whatsapp.com/BzCjfLV2jOT97uoG2dC9WO",
-    "Code In the Dark": "https://chat.whatsapp.com/FWVZt7TUAbF6kdpDsxCG5w",
+    "Code in the Dark": "https://chat.whatsapp.com/FWVZt7TUAbF6kdpDsxCG5w",
     "Brain Battle": "https://chat.whatsapp.com/ISmlGSm68QB9q26dKGGKw5",
     "Bug Busters": "https://chat.whatsapp.com/HTbvSM1aNR1IdRYXZ4mnO6",
     "UI Showdown": "https://chat.whatsapp.com/HRbevOUM1ucEjp86RklC5c",
@@ -35,7 +35,10 @@ const GenerateQrPage = () => {
       try {
         const res = await axios.get(`${BACKEND_URL}/api/v1/event/${event_id}`);
         if (res) {
+          console.log("Data", res.data.name);
+
           setEventName(res.data.name);
+          console.log(eventName);
         } else {
           setError("Failed to fetch event details");
         }
