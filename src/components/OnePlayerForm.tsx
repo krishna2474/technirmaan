@@ -15,9 +15,7 @@ export const OnePlayerForm = () => {
 
   const {
     register,
-    handleSubmit,
-    formState: { errors, isValid },
-    setValue,
+    formState: { errors },
   } = useForm({ mode: "onChange" });
 
   // const [departmentInputVisible, setDepartmentInputVisible] = useState(false);
