@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 type CardProps = {
   title: string;
   description: string;
@@ -25,6 +23,7 @@ export const Card = ({ title, description, image, cardId }: CardProps) => {
                     {description}
                   </p>
                   <div className="mb-20">
+                    {cardId}
                     <span className="inline-block bg-red-500 text-white rounded-full border border-gray-3 px-7 py-2 text-base font-medium text-body-color transition mt-6">
                       Registrations Closed
                     </span>
