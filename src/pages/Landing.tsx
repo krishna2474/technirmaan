@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import { Card } from "../components/Card";
 import Navbar from "../components/NavBar";
 const Landing = () => {
+  useEffect(()=>{
+alert("This Website is Closed right now. We'll Start Taking registrations for the next event soon. Stay tuned for updates on our social media channels and website!");
+  },[])
   return (
     <>
       <Navbar />

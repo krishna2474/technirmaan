@@ -104,7 +104,12 @@ export const OtpScreen = () => {
           }
           nav(`/generate-qr?email=${email}&event_id=${event_id}`);
         } else {
-          nav(`/payment?email=${email}&event_id=${event_id}`);
+          const newRegistration = await axios.post(
+            `${BACKEND_URL}/api/v1/register/new?email=${email}&event_id=${event_id}`
+          );
+          if (newRegistration.data.error) {
+            return;
+          } else nav(`/generate-qr?email=${email}&event_id=${event_id}`);
         }
       } else {
         alert(response.data.error || "Failed to verify OTP");
