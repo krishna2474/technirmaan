@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 
 export const TwoToFourPlayerForm = () => {
-  const [registrationOpen] = useState(false);
+  // const [registrationOpen] = useState(false);
   const {
     register,
     handleSubmit,
