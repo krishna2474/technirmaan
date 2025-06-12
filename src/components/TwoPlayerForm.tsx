@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export const TwoPlayerForm = () => {
-  const [registrationOpen] = useState(false);
+  // const [registrationOpen] = useState(false);
   useEffect(() => {
     alert(
       "Ensure all details are valid as they will be printed on the Certificate"

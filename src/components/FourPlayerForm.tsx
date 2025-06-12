@@ -18,7 +18,7 @@ export const FourPlayerForm = () => {
   } = useForm({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false);
-  const [registration, setRegistration] = useState(true);
+  // const [registration, setRegistration] = useState(true);
   const numPlayers = 4;
   const { eventId } = useParams();
   const navigate = useNavigate();
